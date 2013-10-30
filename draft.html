@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quota Management API</title>
+    <meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>
+    <!--
+      === NOTA BENE ===
+      For the three scripts below, if your spec resides on dev.w3 you can check them
+      out in the same tree and use relative links so that they'll work offline,
+     -->
+    <script src='https://www.w3.org/Tools/respec/respec-w3c-common' class='remove'></script>
+    <script class='remove'>
+      var respecConfig = {
+          // specification status (e.g. WD, LCWD, NOTE, etc.). If in doubt use ED.
+          specStatus:           "ED",
+
+          // the specification's short name, as in http://www.w3.org/TR/short-name/
+          shortName:            "quota-api",
+
+          // if your specification has a subtitle that goes below the main
+          // formal title, define it here
+          // subtitle   :  "an excellent document",
+
+          // if you wish the publication date to be other than today, set this
+          // publishDate:  "2009-08-06",
+
+          // if the specification's copyright date is a range of years, specify
+          // the start date here:
+          // copyrightStart: "2005"
+          copyrightStart: "2012",
+
+          // if there is a previously published draft, uncomment this and set its YYYY-MM-DD date
+          // and its maturity status
+          // previousPublishDate:  "1977-03-15",
+          // previousMaturity:  "WD",
+
+          // if there a publicly available Editor's Draft, this is the link
+          edDraftURI:           "http://dvcs.w3.org/hg/quota/raw-file/tip/Overview.html",  // FIXME
+
+          // if this is a LCWD, uncomment and set the end of its review period
+          // lcEnd: "2009-08-05",
+
+          // if you want to have extra CSS, append them to this list
+          // it is recommended that the respec.css stylesheet be kept
+          // extraCSS:             ["http://dev.w3.org/2009/dap/ReSpec.js/css/respec.css"],
+          // extraCSS:             ["http://dvcs.w3.org/hg/quota/raw-file/tip/ReSpec.js/css/respec.css"],
+
+          // editors, add as many as you like
+          // only "name" is required
+          editors:  [
+          { name: "Kinuko Yasuda",
+            company: "Google",
+            companyURL: "http://google.com/",
+          } ],
+
+          previousMaturity: "FPWD",
+          previousPublishDate: "2012-07-03",
+
+          // authors, add as many as you like. 
+          // This is optional, uncomment if you have authors as well as editors.
+          // only "name" is required. Same format as editors.
+
+          //authors:  [
+          //    { name: "Your Name", url: "http://example.org/",
+          //      company: "Your Company", companyURL: "http://example.com/" },
+          //],
+          
+          // name of the WG
+          wg:           "Web Applications (WebApps) Working Group",
+          
+          // URI of the public WG page
+          wgURI:        "http://www.w3.org/2008/webapps/",
+          
+          // name (without the @w3c.org) of the public mailing to which comments are due
+          wgPublicList: "public-webapps",
+
+          // URI of the patent status for this WG, for Rec-track documents
+          // !!!! IMPORTANT !!!!
+          // This is important for Rec-track documents, do not copy a patent URI from a random
+          // document unless you know what you're doing. If in doubt ask your friendly neighbourhood
+          // Team Contact.
+          wgPatentURI:  "",
+
+          localBiblio: {
+            "NEW-FILE-SYSTEM": {
+              title: "FileSystem API",
+              href: "http://w3c.github.io/filesystem-api/Overview.html",
+              authors: [ "Arun Ranganathan" ],
+              status: "ED",
+              publisher: "W3C"
+            }
+          }
+      };
+    </script>
+  </head>
+  <body>
+    <section id='abstract'>
+      <p>
+      This specification defines an API to manage usage and availability
+      of local storage resources, and defines a means by which
+      a user agent (UA) may grant Web applications permission to use
+      more local space, temporarily or persistently, via various
+      different storage APIs.
+      </p>
+    </section>
+
+    <section id='sotd'>
+    <p>
+      This document is a proposal that is being made available for public
+      review in order to solicit feedback, particularly from
+      implementors, with a goal of potential cross-browser implementation
+      and standardization.
+    </p>
+    </section>
+
+    <section class="informative">
+      <h2>Introduction</h2>
+      <p>
+      Today we have a variety of storage APIs
+      that can store inherently complex or large data
+      in order to satisfy offline data requirements of Web applications.
+      Examples of these APIs include:
+      Application Cache [[OFFLINE-WEBAPPS]],
+      FileSystem API [[FILE-SYSTEM]][[NEW-FILE-SYSTEM]],
+      Indexed Database [[INDEXEDDB]] and
+      Web SQL Database [[WEB-SQL]].
+      </p>
+      <p>
+      These APIs may require larger local space than the conventional
+      cookie storage or Web Storage [[WEBSTORAGE]], but they do not provide
+      a means by which a Web application can query and manage how much
+      data is currently stored and how much more can be stored.
+      </p>
+      <p>
+      This specification defines an API to query and manage usage and
+      availability of a user's local storage.  The storage space granted
+      by the API is intended to be shared by different storage APIs,
+      therefore a user and UA only need to manage single upper limit
+      for all storage per logical application unit, e.g. per origin or
+      per browser (which is implementation specific).
+      </p>
+    </section>
+
+    <section id='conformance'>
+    <p>
+     User agents that use ECMAScript to implement the APIs defined in this
+     specification MUST implement them in a manner consistent with the
+     ECMAScript Bindings defined in the Web IDL specification [[WEBIDL]] as this
+     specification uses that specification and terminology.
+    </p>
+    </section>
+
+    <section id='terminology'>
+      <h2>Terminology</h2>
+      <p>
+      The concept
+   <dfn><a
+   href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event">fires
+   a simple event</a></dfn> is defined in [[HTML5]].
+      </p>
+
+      <p>
+      The <dfn><a
+      href="http://www.w3.org/TR/dom/#interface-event">Event</a></dfn>, <dfn><a
+      href="http://www.w3.org/TR/dom/#eventtarget">EventTarget</a></dfn>,
+      <dfn><a href="http://www.w3.org/TR/dom/#eventlistener">EventListener</a> interfaces are defined in [[DOM4]].
+      </p>
+
+      <p>
+      The <dfn><a
+      href="http://www.w3.org/TR/dom/#interface-domerror">DOMError</a></dfn> and
+      <dfn><a
+      href="http://www.w3.org/TR/dom/#exception-domexception">DOMException</a></dfn>
+      interfaces are defined in [[DOM4]].
+      </p>
+
+      <p>
+        The <dfn><a
+        href="http://dom.spec.whatwg.org/#promises">Promise</a></dfn>
+        interface is currently defined and discussed in <a
+        href="http://dom.spec.whatwg.org/">the WHATWG DOM specification</a>
+        and
+        <a href="http://promises-aplus.github.io/promises-spec/">Promises/A+</a> 
+        draft pages.
+      </p>
+
+    </section>
+
+    <section>
+      <h2>Storage Types</h2>
+
+      <section class="informative">
+        <h3>Temporary vs Persistent</h3>
+      <p>
+        A Web application can request <a>temporary</a> or
+        <a>persistent</a> local storage space depending
+        on its purpose.
+      </p>
+      <ul>
+        <li>
+        <dfn id="temporary">Temporary</dfn> storage is a transient
+        storage that is more easily accessible by any Web applications
+        without upfront quota request or user prompting,
+        but the data stored in the storage
+        may get deleted at any time at the UA's discretion.
+        This storage can be viewed as analogous to the '/tmp' directory of
+        a traditional filesystem.
+        <li>
+        <dfn id="persistent">Persistent</dfn> storage needs upfront
+        quota request which possibly triggers user prompting, but should
+        never get deleted by the UA without the user’s explicit
+        instruction.
+      </ul>
+
+        <p>
+        <a>Temporary</a> type of storage is
+        especially useful
+        if an application wants to cache data locally to improve
+        its performance, but can fall back to fetching or recreating
+        the same data at a data loss.
+        </p>
+
+        <p>
+        Conversely,
+        <a>persistent</a> type of storage is useful
+        if an application wants to store critical offline data that
+        is necessary to be functional, or wants to manage local data
+        amount and lifetime on its own policy rather than relying on
+        the UA's default eviction policy for <a>temporary</a> storage.
+        </p>
+      </p>
+      </section>
+
+      <section>
+      <h4>Examples</h4>
+        <p>
+        Suppose there is a photo editing application.
+        This application
+        manages user photo data using Indexed Database [[INDEXEDDB]],
+        stores photo images using Filesystem API [[FILE-SYSTEM]]
+        [[NEW-FILE-SYSTEM]] and
+        optinally utilizes Application Cache [[OFFLINE-WEBAPPS]]
+        to make it work offline.
+        </p>
+        <p>
+        The application needs to query how much data it can store in the
+        <a>temporary</a> storage
+        to determine its initial cache size.
+        </p>
+        <pre class='example highlight'>
+          // Query current usage and availability in Temporary storage:
+          navigator.storageQuota.queryInfo("temporary").then(
+            function(storageInfo) {
+              // Continue to initialize local cache using the obtained
+              // usage and remaining space (quota - usage) information.
+              initializeCache(storageInfo.usage,
+                              storageInfo.quota - storageInfo.usage);
+            });
+          </pre>
+
+          <p>
+          Similarly, the application needs to request
+          additional persistent storage to support offline mode
+          when it is enabled by the user.
+          </p>
+          <pre class='example highlight'>
+          // A function which is to be called when 'offline-mode' is enabled
+          // by the user.
+          function onOfflineModeEnabled(amountOfSpaceNeeded) {
+            // First check how much we can use in the Persistent storage.
+            navigator.storageQuota.queryInfo("persistent").then(
+              function (storageInfo) {
+                var availableSpace = storageInfo.quota - storageInfo.usage;
+                if (availableSpace >= amountOfSpaceNeeded) {
+                  // We're fine; just continue with the returned storage info.
+                  return storageInfo;
+                }
+                return navigator.storageQuota.requestPersistentQuota(
+                    amountOfSpaceNeeded + storageInfo.usage);
+              }
+            ).then(
+              function (storageInfo) {
+                // Prepare for offline mode using the current available
+                // storage space.
+                prepareForOfflineMode(storageInfo.quota - storageInfo.usage);
+              }, function (error) {
+                // Handle error.
+              }
+            );
+          }
+        </pre>
+      </section>
+    </section>
+
+    <section>
+      <h2>Quota Management API</h2>
+
+      <section>
+        <h3><code id="storage-types" class="idlType">StorageType</code> enum</h3>
+        <dl title='enum StorageType' class='idl'>
+          <dt>temporary</dt>
+          <dd>Indicates <a>temporary</a> storage type.</dd>
+          <dt>persistent</dt>
+          <dd>Indicates <a>persistent</a> storage type.</dd>
+        </dl>
+      </section>
+
+
+      <section>
+        <h3><code class="idlType">StorageInfo</code> interface</h3>
+
+        <dl title='[NoInterfaceObject] interface StorageInfo' class='idl'>
+          <dt>readonly attribute unsigned long long usage</dt>
+          <dd>
+          The total amount of data (in bytes)
+          stored by the application for a given storage type.
+          Depending on how the UA
+          calculates data usage the returned value
+          may differ from the exact real-time usage of the user's physical
+          local storage.
+          </dd>
+          <dt>readonly attribute unsigned long long quota</dt>
+          <dd>
+          The current upper limit of the storage space that can be used by
+          the application for a given storage type.
+          This includes the storage area that is already used by the
+          application, so <code>storageInfo.usage</code> needs to be
+          subtracted from <code>storageInfo.quota</code> to get the
+          remaining available storage space.
+          </dd>
+        </dl>
+      </section>
+
+      <section>
+        <h3><code class="idlType">StorageQuota</code> interface</h3>
+
+        <p>
+        The <a><code>StorageQuota</code></a> interface provides means to query
+        and request storage usage and quota information.
+        The API provided by the interface is asynchronous since
+        querying or allocating space in a user's local storage may require
+        blocking I/O operations, e.g. examining the local disk status or
+        making changes in a local database.
+        </p>
+
+        <dl title='[NoInterfaceObject] interface StorageQuota' class='idl'>
+          <dt>
+          readonly attribute StorageType[] supportedTypes
+          </dt>
+          <dd>
+            List of all storage types supported by the UA.
+          </dd>
+
+          <dt>
+          Promise queryInfo(StorageType type)
+          </dt>
+           <dd>
+           <p>
+           This method queries the storage info of the given storage
+           <code>type</code>.
+           This returns <code>StorageInfo</code> that has the current data
+           usage and available quota information for the application.
+           When <code>queryInfo</code> method is called, the UA must
+           run the following steps:
+           <ol>
+             <li>Let <var>storageType</var> be the first argument.
+             <li>Let <var>promise</var> be a new <code>Promise</code> object.
+             <li>Return the <var>promise</var> and run the following steps
+             asynchronously.
+             <ol>
+              <li>If the <var>storageType</var> is not supported by the user
+              agent (i.e. not in the <code>supportedTypes</code> array),
+              let <var>error</var> be a new <code><a>DOMError</a></code>
+              created with the name <a href="https://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#notsupportederror">"NotSupportedError"</a> and
+              jump to the step labeled <em>failure</em> below.
+               <li>
+               Let <var>usage</var> be the total amount of data stored
+               by the application in the storage of <var>storageType</var>.
+               <li>
+               Let <var>quota</var> be the upper limit of the usage
+               that can be stored by the application for
+               <var>storageType</var>.  For <a>temporary</a> storage
+               this value may reflect the current available storage space
+               on the user's local device and may change from time to time.
+               For <a>persistent</a> storage this value must return the
+               consistent quota size that is granted to the
+               application by <a><code>requestPersistentQuota</code></a>.
+               If the application does not have the associated persistent
+               quota yet the UA may return a UA-specific default quota value
+               (which could be 0).
+               <li>If any error has occured during querying the storage
+               status, let <var>error</var> be a new
+               <code><a>DOMError</a></code>
+               and jump to the step labeled <em>failure</em> below.
+             </ol>
+             <li><em><b>success</b></em>:
+               Let <var>storageInfo</var> be a new
+               <code><a>StorageInfo</a></code> object, created with
+               <var>usage</var> and <var>quota</var>, and
+               resolve <var>promise</var>
+               with <var>storageInfo</var> as its resulting value.
+             <li><em><b>failure</b></em>:
+              Reject <var>promise</var> with <var>error</var> as the reason.
+           </ol>
+           </p>
+           </dd>
+
+          <dt> Promise requestPersistentQuota(unsigned long long newQuota) </dt>
+           <dd>
+           <p>
+           Requests a new quota in <a>persistent</a> storage
+           for the requesting application.
+           It is not guaranteed that the requested amount of space
+           is granted just by calling this API, and the UA
+           may return a new <code><a>StorageInfo</a></code> object
+           (without rejecting the request) with a smaller quota value
+           than requested.
+           Calling this API may trigger user prompting to request
+           explicit user permission to proceed.
+           </p>
+           When <code class="idlType">requestPersistentQuota</code> method is
+           called, the UA must run the following steps:
+           <ol>
+             <li>Let <var>newQuota</var> be the first argument.
+             <li>Let <var>promise</var> be a new <code>Promise</code> object.
+             <li>Return the <var>promise</var> and run the following steps
+             asynchronously.
+             <ol>
+               <li>
+               Let <var>usage</var> be the total amount of data stored
+               by the application in <a>persistent</a> storage.
+               <li>
+               Let <var>quota</var> be the quota size that is granted
+               to the application for <a>persistent</a> storage.
+               If this application does not have associated persistent quota
+               yet, initialize <var>quota</var> with a UA-specific default
+               quota value (which could be 0).
+              <li>If <var>quota</var> is equal to or greater than
+                <var>newQuota</var>,
+                let <var>grantedQuota</var> be the same value as
+                <var>quota</var> and
+                jump to the step labeled <em>success</em> below.
+              <li>Optionally, if <var>newQuota</var> is greater than
+                the current <var>quota</var>,
+                prompt the user in a UA-specific manner for
+                permission to allow the application to store more data.
+              <li>If the user rejects to grant the permission,
+                let <var>grantedQuota</var> be the same value as
+                <var>quota</var> and
+                jump to the step labeled <em>success</em> below.
+              <li>Let <var>grantedQuota</var> be the new quota size
+               associated to the application
+               which may satisfy <var>newQuota</var> if possible,
+               and record the value in a persistent way
+               so that the UA can return the consistent quota value for
+               the application for later <code><a>queryInfo</a></code> requests.
+               <var>grantedQuota</var> may be smaller than
+               <var>newQuota</var>, but must be equal to or greater than
+               the old <var>quota</var>.
+              <li>If any error has occured during updating the quota,
+               let <var>error</var> be a new <code><a>DOMError</a></code>
+               and jump to the step labeled <em>failure</em> below.
+             </ol>
+             <li><em><b>success</b></em>:
+               Let <var>storageInfo</var> be a new
+               <code><a>StorageInfo</a></code> object, created with
+               <var>usage</var> and <var>grantedQuota</var>, and
+              resolve <var>promise</var>
+              with <var>storageInfo</var> as its resulting value.
+             <li><em><b>failure</b></em>:
+             Reject <var>promise</var> with <var>error</var> as the reason.
+           </ol>
+           </dd>
+        </dl>
+
+        <section>
+          <h4>Accessing <code class="idlType"><a>StorageQuota</a></code> interface</h4>
+
+          <dl title='partial interface Navigator' class='idl'>
+            <dt>readonly attribute StorageQuota storageQuota</dt>
+            <dd>
+            Returns the <code><a>StorageQuota</a></code> interface.
+            </dd>
+          </dl>
+        </section>
+      </section>
+
+      <section>
+        <h3><code class="idlType">StorageEvent</code> interface</h3>
+
+        <p>
+        An event object implementing this interface is passed to
+        <code>onstoragechange</code>
+        event handler when storage information is updated.
+        </p>
+
+        <dl title='[Constructor(DOMString type, optional StorageEventInit eventInitDict)] interface StorageEvent : Event' class='idl'>
+          <dt>readonly attribute unsigned long long usage</dt>
+          <dd>
+          The total amount of data (in bytes)
+          stored by the application for a given storage type.
+          </dd>
+          <dt>readonly attribute unsigned long long quota</dt>
+          <dd>
+          The current upper limit of the storage space that can be used by
+          the application for a given storage type.
+          </dd>
+        </dl>
+      </section>
+
+      <section>
+      <p>Events are constructed as defined in
+      <a href="http://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#constructing-events">constructing events</a> in [[DOM4]].
+      </p>
+
+      <dl title='dictionary StorageEventInit : EventInit' class='idl'>
+        <dt>unsigned long long usage = 0</dt>
+        <dd>
+        </dd>
+        <dt>unsigned long long quota = 0</dt>
+        <dd>
+        </dd>
+      </dl>
+      </section>
+
+      <section>
+        <h3><code class="idlType">StorageWatcher</code> interface</h3>
+
+        <p>
+        <a><code>StorageWatcher</code></a> interface is to watch real time
+        storage changes. This fires <code>storagechange</code> event
+        every time a storage status change is detected by the UA,
+        or about every <code>rate</code> second(s),
+        whichever is least frequent.
+        </p>
+
+        <dl title='[Constructor(StorageType type, unsigned long rate)]
+                   interface StorageWatcher : EventTarget' class='idl'>
+          <dt>readonly attribute StorageType type</dt>
+          <dd>
+          Returns the storage type <code>type</code> which this
+          watcher is constructed with and is monitoring changes on.
+          </dd>
+          <dt>readonly attribute unsigned long rate</dt>
+          <dd>
+          Returns the <code>rate</code> value which this
+          watcher is constructed with.
+          </dd>
+          <dt>attribute EventListener onstoragechange</dt>
+          <dd>
+          The event handler for the <code>storagechange</code> event.
+          </dd>
+        </dl>
+      </section>
+
+        <section>
+        <h4>Restrictions</h4>
+        <p>
+        The space queried and granted by <a class="idlType"><code>StorageQuota</code></a> have the
+        following properties:
+        </p>
+        <ul>
+          <li>The space granted for <a>persistent</a> type
+          should not be deleted by the UA,
+          other than in a response to a removal API call, without explicit authorization from the user.
+          <li>The space granted for <a>temporary</a> type may be deleted by the UA at its discretion, without application or user intervention due to local resource shortage or for other reasons.
+          <li>When the UA deletes the data in <a>temporary</a>
+          storage, the UA should avoid partial or incomplete deletion which could leave the application in an unrecoverable inconsistent state.
+        </ul>
+        </section>
+      </section>
+    </section>
+
+    <section class="informative">
+      <h2>Quota handling in storage APIs</h2>
+      Storage APIs except for Web Storage, i.e.
+      Application Cache,
+      File System API,
+      Indexed Database and Web SQL Database,
+      should respect the quota management API and must have following properties:
+      <ul>
+        <li> Any write requests which will exceed the granted quota limit should
+        fail with <a href="http://www.w3.org/TR/dom/#dom-domexception-quota_exceeded_err">QuotaExceededError</a>
+        <code>DOMError</code> or <code>DOMException</code>
+        (including when the granted quota is zero, i.e. the UA refuses
+        to grant any quota or the storage is disabled for the site).
+        As an exception, if the write is being made in the background where
+        it cannot throw
+        exception or return an error, the API may fail silently.  For example, Application Cache may silently discard or fail to cache data when it is hitting quota limit.
+        <li> For FileSystem API [[FILE-SYSTEM]][[NEW-FILE-SYSTEM]] the UA must store data for <b>temporary filesystem</b> in <a>temporary</a> storage, and data for <b>persistent filesystem</b> in <a>persistent</a> storage.
+        <li> For Application Cache [[OFFLINE-WEBAPPS]] the UA must store its cache data
+          in <a>temporary</a> storage.
+        <li> Other storage APIs may store data in either <a
+          href="#temporary">temporary</a> or <a
+          href="#persistent">persistent</a> storage.  When an API stores data in
+        <a>persistent</a> storage by default, storing data or
+        opening the storage (e.g. opening a database) may trigger user prompting by the UA to request for user permission.
+      </ul>
+
+        <div class='note'>
+          <p>
+          Indexed Database [[INDEXEDDB]] is expected to have <a>temporary</a>
+          and <a>persistent</a> storage types in its next version, and
+          when that happens the UA should store data for temporary database
+          in <a>temporary</a> storage and for persistent database
+          in <a>persistent</a> storage, respectively.
+          </p>
+        </div>
+
+    </section>
+
+    <section class='appendix'>
+      <h2>Acknowledgements</h2>
+      <p>
+        Many thanks to Robin Berjon for making our lives so much easier with his cool tool.
+      </p>
+    </section>
+  </body>
+</html>

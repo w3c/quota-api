@@ -25,4 +25,4 @@ it supports them.
 Currently it's in FPWD status.
 
 * [FPWD](http://www.w3.org/TR/quota-api/)
-* [New API draft](https://github.com/kinu/quota-api/blob/master/draft.md)
+* [New API draft](http://htmlpreview.github.io/?http://github.com/kinu/quota-api/blob/master/draft.html)
