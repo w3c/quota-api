@@ -12,4 +12,4 @@ Namely, the API is aiming to enable:
 Currently it's in FPWD status.
 
 * [FPWD](http://www.w3.org/TR/quota-api/)
-* [New API draft (Oct 29, 2013)](http://htmlpreview.github.io/?http://github.com/kinu/quota-api/blob/master/draft.html)
+* [New API draft (Oct 29, 2013)](http://github.com/kinu/quota-api/blob/master/draft.html) [htmlpreview version](http://htmlpreview.github.io/?http://github.com/kinu/quota-api/blob/master/draft.html)
