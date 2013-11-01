@@ -55,7 +55,6 @@
 
           previousMaturity: "FPWD",
           previousPublishDate: "2012-07-03",
-
           publishDate: "2013-10-29",
 
           // authors, add as many as you like. 
@@ -180,10 +179,7 @@
         The <dfn><a
         href="http://dom.spec.whatwg.org/#promises">Promise</a></dfn>
         interface is currently defined and discussed in <a
-        href="http://dom.spec.whatwg.org/">the WHATWG DOM specification</a>
-        and
-        <a href="http://promises-aplus.github.io/promises-spec/">Promises/A+</a> 
-        draft pages.
+        href="http://dom.spec.whatwg.org/">the WHATWG DOM specification</a>.
       </p>
 
     </section>
@@ -314,21 +310,36 @@
         <dl title='[NoInterfaceObject] interface StorageInfo' class='idl'>
           <dt>readonly attribute unsigned long long usage</dt>
           <dd>
+          <p>
           The total amount of data (in bytes)
           stored by the application for a given storage type.
           Depending on how the UA
           calculates data usage the returned value
           may differ from the exact real-time usage of the user's physical
           local storage.
+          </p>
           </dd>
           <dt>readonly attribute unsigned long long quota</dt>
           <dd>
+          <p>
           The current upper limit of the storage space that can be used by
           the application for a given storage type.
           This includes the storage area that is already used by the
           application, so <code>storageInfo.usage</code> needs to be
           subtracted from <code>storageInfo.quota</code> to get the
           remaining available storage space.
+          </p>
+          <p>
+          For <a>temporary</a> storage
+          this value may reflect the actual storage space available
+          on the user's local device and may change from time to time.
+          For <a>persistent</a> storage this value must return the
+          consistent quota size that is granted to the
+          application by <a><code>requestPersistentQuota</code></a>.
+          If the application does not have the associated persistent
+          quota yet the UA may return a UA-specific default quota value
+          (which could be 0).
+          </p>
           </dd>
         </dl>
       </section>
@@ -381,15 +392,7 @@
                <li>
                Let <var>quota</var> be the upper limit of the usage
                that can be stored by the application for
-               <var>storageType</var>.  For <a>temporary</a> storage
-               this value may reflect the current available storage space
-               on the user's local device and may change from time to time.
-               For <a>persistent</a> storage this value must return the
-               consistent quota size that is granted to the
-               application by <a><code>requestPersistentQuota</code></a>.
-               If the application does not have the associated persistent
-               quota yet the UA may return a UA-specific default quota value
-               (which could be 0).
+               <var>storageType</var>. 
                <li>If any error has occured during querying the storage
                status, let <var>error</var> be a new
                <code><a>DOMError</a></code>
@@ -537,13 +540,27 @@
         </p>
 
         <p>
-        If <code>rate</code> is not given in the constructor the UA
+        If <code>rate</code> is not given in the constructor, the UA
         fires <code>storagechange</code> event whenever it detects
-        the usage or quota changes in the backend.
+        the usage or quota changes in the backend, but no more frequent
+        than 50ms.
+        </p>
+
+        <p>
+        The UA must fire one <code>storagechange</code> event
+        with the current storage status
+        immediately (but asynchronously) after a watcher is constructed,
+        unless <code>stop()</code> is called before the first
+        <code>storagechange</code> event is dispatched.
         </p>
 
         <dl title='[Constructor(StorageType type, optional unsigned long rate)]
                    interface StorageWatcher : EventTarget' class='idl'>
+          <dt>void stop()</dt>
+          <dd>
+          Explicitly stops watching storage changes.
+          Once stop() is called the UA never fires events on this instance.
+          </dd>
           <dt>readonly attribute StorageType type</dt>
           <dd>
           Returns the storage type <code>type</code> which this
