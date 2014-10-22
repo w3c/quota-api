@@ -53,9 +53,9 @@
             companyURL: "http://google.com/",
           } ],
 
-          previousMaturity: "FPWD",
-          previousPublishDate: "2012-07-03",
-          publishDate: "2013-10-29",
+          previousMaturity: "WD",
+          previousPublishDate: "2013-11-05",
+          publishDate: "2014-02-04",
 
           // authors, add as many as you like. 
           // This is optional, uncomment if you have authors as well as editors.
@@ -410,7 +410,7 @@
            </p>
            </dd>
 
-          <dt> Promise requestPersistentQuota(unsigned long long newQuota) </dt>
+          <dt> Promise requestPersistentQuota([Clamp] unsigned long long newQuota) </dt>
            <dd>
            <p>
            Requests a new quota in <a>persistent</a> storage
@@ -547,19 +547,20 @@
         </p>
 
         <p>
-        The UA must fire one <code>storagechange</code> event
+        Regardless of the <code>rate</code> value,
+        the UA must fire one <code>storagechange</code> event
         with the current storage status
         immediately (but asynchronously) after a watcher is constructed,
-        unless <code>stop()</code> is called before the first
+        unless <code>close()</code> is called before the first
         <code>storagechange</code> event is dispatched.
         </p>
 
         <dl title='[Constructor(StorageType type, optional unsigned long rate)]
                    interface StorageWatcher : EventTarget' class='idl'>
-          <dt>void stop()</dt>
+          <dt>void close()</dt>
           <dd>
-          Explicitly stops watching storage changes.
-          Once stop() is called the UA never fires events on this instance.
+          Explicitly closes the watcher.
+          Once close() is called the UA never fires events on this instance.
           </dd>
           <dt>readonly attribute StorageType type</dt>
           <dd>
