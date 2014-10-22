@@ -9,5 +9,6 @@ Namely, the API is aiming to enable:
 * Webapps to **request a new storage quota** to store bigger data in a way that the UA and the user can agree with, and
 * Webapps to **efficiently manage their data** when the remaining available space on the user's local device is getting tight.
 
-* [Editor's Draft (@w3.org)](https://dvcs.w3.org/hg/quota/raw-file/tip/Overview.html)
-* [source on github](http://github.com/kinu/quota-api/blob/master/draft.html)
+[Editor's Draft (@w3.org)](https://dvcs.w3.org/hg/quota/raw-file/tip/Overview.html)
+/
+[source on github](http://github.com/kinu/quota-api/blob/master/draft.html)
