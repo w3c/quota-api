@@ -358,7 +358,7 @@
 
         <dl title='[NoInterfaceObject] interface StorageQuota' class='idl'>
           <dt>
-          readonly attribute StorageType[] supportedTypes
+          [SameObject] readonly attribute frozen array&lt;StorageType&gt; supportedTypes
           </dt>
           <dd>
             List of all storage types supported by the UA.
