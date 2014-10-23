@@ -377,36 +377,25 @@
            run the following steps:
            <ol>
              <li>Let <var>storageType</var> be the first argument.
-             <li>Let <var>promise</var> be a new <code>Promise</code> object.
-             <li>Return the <var>promise</var> and run the following steps
-             asynchronously.
+             <li>Let <var>p</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.
+             <li>Run the following substeps asynchronously:
              <ol>
-              <li>If the <var>storageType</var> is not supported by the user
+               <li>If the <var>storageType</var> is not supported by the user
               agent (i.e. not in the <code>supportedTypes</code> array),
-              let <var>error</var> be a new <code><a>DOMError</a></code>
-              created with the name <a href="https://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#notsupportederror">"NotSupportedError"</a> and
-              jump to the step labeled <em>failure</em> below.
+              reject <var>p</var> with a "NotSupportedError" exception
+              and abort these steps.
                <li>
                Let <var>usage</var> be the total amount of data stored
                by the application in the storage of <var>storageType</var>.
                <li>
                Let <var>quota</var> be the upper limit of the usage
                that can be stored by the application for
-               <var>storageType</var>. 
-               <li>If any error has occured during querying the storage
-               status, let <var>error</var> be a new
-               <code><a>DOMError</a></code>
-               and jump to the step labeled <em>failure</em> below.
+               <var>storageType</var>.
+               <li> Resolve <var>p</var> with a new <code><a>StorageInfo</a></code> object, created with
+               the <var>usage</var> and <var>quota</var> values.
              </ol>
-             <li><em><b>success</b></em>:
-               Let <var>storageInfo</var> be a new
-               <code><a>StorageInfo</a></code> object, created with
-               <var>usage</var> and <var>quota</var>, and
-               resolve <var>promise</var>
-               with <var>storageInfo</var> as its resulting value.
-             <li><em><b>failure</b></em>:
-              Reject <var>promise</var> with <var>error</var> as the reason.
-           </ol>
+             <li> Return <var>p</var>.
+            </ol>
            </p>
            </dd>
 
@@ -427,53 +416,41 @@
            called, the UA must run the following steps:
            <ol>
              <li>Let <var>newQuota</var> be the first argument.
-             <li>Let <var>promise</var> be a new <code>Promise</code> object.
-             <li>Return the <var>promise</var> and run the following steps
-             asynchronously.
+             <li>Let <var>p</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.
+             <li>Run the following substeps asynchronously:
              <ol>
                <li>
                Let <var>usage</var> be the total amount of data stored
                by the application in <a>persistent</a> storage.
                <li>
-               Let <var>quota</var> be the quota size that is granted
-               to the application for <a>persistent</a> storage.
+               Let <var>quota</var> be the current quota size that is already
+               granted to the application for <a>persistent</a> storage.
                If this application does not have associated persistent quota
                yet, initialize <var>quota</var> with a UA-specific default
                quota value (which could be 0).
-              <li>If <var>quota</var> is equal to or greater than
-                <var>newQuota</var>,
-                let <var>grantedQuota</var> be the same value as
-                <var>quota</var> and
-                jump to the step labeled <em>success</em> below.
-              <li>Optionally, if <var>newQuota</var> is greater than
-                the current <var>quota</var>,
-                prompt the user in a UA-specific manner for
-                permission to allow the application to store more data.
-              <li>If the user rejects to grant the permission,
-                let <var>grantedQuota</var> be the same value as
-                <var>quota</var> and
-                jump to the step labeled <em>success</em> below.
-              <li>Let <var>grantedQuota</var> be the new quota size
-               associated to the application
-               which may satisfy <var>newQuota</var> if possible,
-               and record the value in a persistent way
-               so that the UA can return the consistent quota value for
-               the application for later <code><a>queryInfo</a></code> requests.
-               <var>grantedQuota</var> may be smaller than
-               <var>newQuota</var>, but must be equal to or greater than
-               the old <var>quota</var>.
-              <li>If any error has occured during updating the quota,
-               let <var>error</var> be a new <code><a>DOMError</a></code>
-               and jump to the step labeled <em>failure</em> below.
-             </ol>
-             <li><em><b>success</b></em>:
-               Let <var>storageInfo</var> be a new
+              <ol>
+                <li>If <var>quota</var> is equal to or greater than
+                  <var>newQuota</var>,
+                  let <var>grantedQuota</var> be the same value as
+                  the current <var>quota</var>.
+                <li>Else:
+                 <ol>
+                   <li> Check how much amount of storage the UA can allocate
+                   for the application. This step may optionally prompt the user
+                   in a UA-specific manner for permission to allow the
+                   application to store more data.
+                   <li> Let <var>grantedQuota</var> be the new quota size
+                   associated to the application. The <var>grantedQuota</var>
+                   may be smaller than the requested <var>newQuota</var>,
+                   but is guaranteed to be equal to or greater than the
+                   old <var>quota</var>.
+                 </ol>
+              </ol>
+              <li> Resolve <var>p</var> with a new
                <code><a>StorageInfo</a></code> object, created with
-               <var>usage</var> and <var>grantedQuota</var>, and
-              resolve <var>promise</var>
-              with <var>storageInfo</var> as its resulting value.
-             <li><em><b>failure</b></em>:
-             Reject <var>promise</var> with <var>error</var> as the reason.
+               <var>usage</var> and <var>grantedQuota</var>.
+             </ol>
+             <li> Return <var>p</var>.
            </ol>
            </dd>
         </dl>
