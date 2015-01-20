@@ -90,7 +90,7 @@
               authors: [ "Arun Ranganathan" ],
               status: "ED",
               publisher: "W3C"
-            }
+            },
           }
       };
     </script>
@@ -155,10 +155,11 @@
     <section id='terminology'>
       <h2>Terminology</h2>
       <p>
-      The concept
-   <dfn><a
-   href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event">fires
-   a simple event</a></dfn> is defined in [[HTML5]].
+      The terms
+  <dfn><a href="http://www.w3.org/TR/html5/webappapis.html#event-handlers">event handler</a></dfn>,
+  <dfn><a href="http://www.w3.org/TR/html5/webappapis.html#event-handler-event-type">event handler event type</a></dfn>,
+   <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event">fires a simple event</a></dfn>
+    are defined in [[HTML5]].
       </p>
 
       <p>
@@ -183,6 +184,17 @@
         href="http://dom.spec.whatwg.org/">the WHATWG DOM specification</a>.
       </p>
 
+      <p>
+        The terms
+        <a href="http://www.w3.org/TR/service-workers/#dfn-service-worker"><dfn>service worker</dfn></a> and
+        <a href="http://www.w3.org/TR/service-workers/#dfn-scope-url"><dfn>scope url</dfn></a>,
+        and the types
+        <a href="http://www.w3.org/TR/service-workers/#service-worker-global-scope-interface"><dfn>ServiceWorkerGlobalScope</dfn></a>,
+        <a href="http://www.w3.org/TR/service-workers/#extendable-event-interface"><dfn>ExtendableEvent</dfn></a>,
+        and <a href=
+        "http://www.w3.org/TR/service-workers/#extendable-event-init-dictionary"><dfn>ExtendableEventInit</dfn></a>
+        are defined in [[!SERVICE-WORKERS]].
+      </p>
     </section>
 
     <section>
@@ -573,6 +585,69 @@
         </ul>
         </section>
       </section>
+
+      <section>
+      <h3>Storage Pressure Events</h3>
+
+        <section>
+          <h3>Extensions to the <code class="idlType">ServiceWorkerGlobalScope</code> interface</h3>
+
+          <p>
+          The Service Worker specification [[SERVICE-WORKERS]] defines a
+          <code>ServiceWorkerGlobalScope</code> interface,
+          which this specification extends.
+          </p>
+
+          <dl title='partial interface ServiceWorkerGlobalScope' class='idl'>
+            <dt>attribute EventHandler onbeforeevicted</dt>
+            <dd>
+            The <code>onbeforeevicted</code> attribute is an
+            <a>event handler</a> whose corresponding <a>event handler type</a> is
+            <code>beforeevicted</code>.
+            </dd>
+            <dt>attribute EventHandler onevicted</dt>
+            <dd>
+            The <code>onevicted</code> attribute is an
+            <a>event handler</a> whose corresponding
+            <a>event handler type</a> is <code>evicted</code>.
+            </dd>
+          </dl>
+        </section>
+
+        <p>
+        This event is going to be dispatched when the Quota Management API
+        detects that there is a storage pressure. If the <a>service worker</a>
+        that received this event did not give back enough space the UA may
+        evict its content entirely.
+        </p>
+
+        <section>
+          <h3><code class="idlType">BeforeEvictEvent</code> interface</h3>
+
+          <dl title='[Constructor(DOMString type, optional BeforeEvictEventInit eventInitDict), Exposed=ServiceWorker] interface BeforeEvictEvent : ExtendableEvent' class='idl' data=merge="BeforeEvictEventInit">
+            <dt>readonly attribute unsigned long long requestedBytes</dt>
+            <dd>
+            The number of bytes that is requested to free up.
+            </dd>
+          </dl>
+        </section>
+
+        <section>
+          <h3><code class="idlType">EvictedEvent</code> interface</h3>
+
+          <dl title='[Constructor(DOMString type, optional EvictedEventInit eventInitDict), Exposed=ServiceWorker] interface BeforeEvictEvent : ExtendableEvent' class='idl' data=merge="BeforeEvictEventInit">
+          </dl>
+        </section>
+        <p>
+        This event is only going to be dispatched if there are foreground pages
+        that are otherwise keep the <a>service worker</a>'s
+        script and registrations alive.
+        It is thrown to let the <a>service worker</a> communicate to clients
+        that the app has been removed and is unlikely to continue to work.
+        The clients can show appropriate UI in response.
+        </p>
+      </section>
+
     </section>
 
     <section class="informative">
