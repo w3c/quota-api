@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" typeof="bibo:Document w3p:WD" prefix="bibo: http://purl.org/ontology/bibo/ w3p: http://www.w3.org/2001/02pd/rec54#">
+<head><meta lang="" property="dc:language" content="en">
+    <title>Quota Management API</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <!--
+      === NOTA BENE ===
+      For the three scripts below, if your spec resides on dev.w3 you can check them
+      out in the same tree and use relative links so that they'll work offline,
+     -->
+    
+    
+  <style>/*****************************************************************
+ * ReSpec 3 CSS
+ * Robin Berjon - http://berjon.com/
+ *****************************************************************/
+
+/* --- INLINES --- */
+em.rfc2119 { 
+    text-transform:     lowercase;
+    font-variant:       small-caps;
+    font-style:         normal;
+    color:              #900;
+}
+
+h1 acronym, h2 acronym, h3 acronym, h4 acronym, h5 acronym, h6 acronym, a acronym,
+h1 abbr, h2 abbr, h3 abbr, h4 abbr, h5 abbr, h6 abbr, a abbr {
+    border: none;
+}
+
+dfn {
+    font-weight:    bold;
+}
+
+a.internalDFN {
+    color:  inherit;
+    border-bottom:  1px solid #99c;
+    text-decoration:    none;
+}
+
+a.externalDFN {
+    color:  inherit;
+    border-bottom:  1px dotted #ccc;
+    text-decoration:    none;
+}
+
+a.bibref {
+    text-decoration:    none;
+}
+
+cite .bibref {
+    font-style: normal;
+}
+
+code {
+    color:  #C83500;
+}
+
+/* --- TOC --- */
+.toc a, .tof a {
+    text-decoration:    none;
+}
+
+a .secno, a .figno {
+    color:  #000;
+}
+
+ul.tof, ol.tof {
+    list-style: none outside none;
+}
+
+.caption {
+    margin-top: 0.5em;
+    font-style:   italic;
+}
+
+/* --- TABLE --- */
+table.simple {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    border-bottom:  3px solid #005a9c;
+}
+
+.simple th {
+    background: #005a9c;
+    color:  #fff;
+    padding:    3px 5px;
+    text-align: left;
+}
+
+.simple th[scope="row"] {
+    background: inherit;
+    color:  inherit;
+    border-top: 1px solid #ddd;
+}
+
+.simple td {
+    padding:    3px 10px;
+    border-top: 1px solid #ddd;
+}
+
+.simple tr:nth-child(even) {
+    background: #f0f6ff;
+}
+
+/* --- DL --- */
+.section dd > p:first-child {
+    margin-top: 0;
+}
+
+.section dd > p:last-child {
+    margin-bottom: 0;
+}
+
+.section dd {
+    margin-bottom:  1em;
+}
+
+.section dl.attrs dd, .section dl.eldef dd {
+    margin-bottom:  0;
+}
+
+@media print {
+    .removeOnSave {
+        display: none;
+    }
+}
+</style><style>/* --- EXAMPLES --- */
+div.example-title {
+    min-width: 7.5em;
+    color: #b9ab2d;
+}
+div.example-title span {
+    text-transform: uppercase;   
+}
+aside.example, div.example, div.illegal-example {
+    padding: 0.5em;
+    margin: 1em 0;
+    position: relative;
+    clear: both;
+}
+div.illegal-example { color: red }
+div.illegal-example p { color: black }
+aside.example, div.example {
+    padding: .5em;
+    border-left-width: .5em;
+    border-left-style: solid;
+    border-color: #e0cb52;
+    background: #fcfaee;    
+}
+
+aside.example div.example {
+    border-left-width: .1em;
+    border-color: #999;
+    background: #fff;
+}
+aside.example div.example div.example-title {
+    color: #999;
+}
+</style><style>/* --- ISSUES/NOTES --- */
+div.issue-title, div.note-title , div.warning-title {
+    padding-right:  1em;
+    min-width: 7.5em;
+    color: #b9ab2d;
+}
+div.issue-title { color: #e05252; }
+div.note-title { color: #2b2; }
+div.warning-title { color: #f22; }
+div.issue-title span, div.note-title span, div.warning-title span {
+    text-transform: uppercase;
+}
+div.note, div.issue, div.warning {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.note > p:first-child, .issue > p:first-child, .warning > p:first-child { margin-top: 0 }
+.issue, .note, .warning {
+    padding: .5em;
+    border-left-width: .5em;
+    border-left-style: solid;
+}
+div.issue, div.note , div.warning {
+    padding: 1em 1.2em 0.5em;
+    margin: 1em 0;
+    position: relative;
+    clear: both;
+}
+span.note, span.issue, span.warning { padding: .1em .5em .15em; }
+
+.issue {
+    border-color: #e05252;
+    background: #fbe9e9;
+}
+.note {
+    border-color: #52e052;
+    background: #e9fbe9;
+}
+
+.warning {
+    border-color: #f11;
+    border-right-width: .2em;
+    border-top-width: .2em;
+    border-bottom-width: .2em;
+    border-style: solid;
+    background: #fbe9e9;
+}
+
+.warning-title:before{
+    content: "⚠"; /*U+26A0 WARNING SIGN*/
+    font-size: 3em;
+    float: left;
+    height: 100%;
+    padding-right: .3em;
+    vertical-align: top;
+    margin-top: -0.5em;
+}
+</style><style>/* HIGHLIGHTS */
+code.prettyprint {
+    color:  inherit;
+}
+
+/* this from google-code-prettify */
+.pln{color:#000}@media screen{.str{color:#080}.kwd{color:#008}.com{color:#800}.typ{color:#606}.lit{color:#066}.pun,.opn,.clo{color:#660}.tag{color:#008}.atn{color:#606}.atv{color:#080}.dec,.var{color:#606}.fun{color:red}}@media print,projection{.str{color:#060}.kwd{color:#006;font-weight:bold}.com{color:#600;font-style:italic}.typ{color:#404;font-weight:bold}.lit{color:#044}.pun,.opn,.clo{color:#440}.tag{color:#006;font-weight:bold}.atn{color:#404}.atv{color:#060}}ol.linenums{margin-top:0;margin-bottom:0}li.L0,li.L1,li.L2,li.L3,li.L5,li.L6,li.L7,li.L8{list-style-type:none}li.L1,li.L3,li.L5,li.L7,li.L9{background:#eee}
+</style><style>/* --- WEB IDL --- */
+pre.idl {
+    border-top: 1px solid #90b8de;
+    border-bottom: 1px solid #90b8de;
+    padding:    1em;
+    line-height:    120%;
+}
+
+pre.idl::before {
+    content:    "WebIDL";
+    display:    block;
+    width:      150px;
+    background: #90b8de;
+    color:  #fff;
+    font-family:    initial;
+    padding:    3px;
+    font-weight:    bold;
+    margin: -1em 0 1em -1em;
+}
+
+.idlType {
+    color:  #ff4500;
+    font-weight:    bold;
+    text-decoration:    none;
+}
+
+/*.idlModule*/
+/*.idlModuleID*/
+/*.idlInterface*/
+.idlInterfaceID, .idlDictionaryID, .idlCallbackID, .idlEnumID {
+    font-weight:    bold;
+    color:  #005a9c;
+}
+a.idlEnumItem {
+    color:  #000;
+    border-bottom:  1px dotted #ccc;
+    text-decoration: none;
+}
+
+.idlSuperclass {
+    font-style: italic;
+    color:  #005a9c;
+}
+
+/*.idlAttribute*/
+.idlAttrType, .idlFieldType, .idlMemberType {
+    color:  #005a9c;
+}
+.idlAttrName, .idlFieldName, .idlMemberName {
+    color:  #ff4500;
+}
+.idlAttrName a, .idlFieldName a, .idlMemberName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlMethod*/
+.idlMethType, .idlCallbackType {
+    color:  #005a9c;
+}
+.idlMethName {
+    color:  #ff4500;
+}
+.idlMethName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlCtor*/
+.idlCtorName {
+    color:  #ff4500;
+}
+.idlCtorName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlParam*/
+.idlParamType {
+    color:  #005a9c;
+}
+.idlParamName, .idlDefaultValue {
+    font-style: italic;
+}
+
+.extAttr {
+    color:  #666;
+}
+
+/*.idlSectionComment*/
+.idlSectionComment {
+    color: gray;
+}
+
+/*.idlMaplike*/
+.idlMaplikeKeyType, .idlMaplikeValueType {
+    color:  #005a9c;
+}
+
+/*.idlConst*/
+.idlConstType {
+    color:  #005a9c;
+}
+.idlConstName {
+    color:  #ff4500;
+}
+.idlConstName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlException*/
+.idlExceptionID {
+    font-weight:    bold;
+    color:  #c00;
+}
+
+.idlTypedefID, .idlTypedefType {
+    color:  #005a9c;
+}
+
+.idlRaises, .idlRaises a.idlType, .idlRaises a.idlType code, .excName a, .excName a code {
+    color:  #c00;
+    font-weight:    normal;
+}
+
+.excName a {
+    font-family:    monospace;
+}
+
+.idlRaises a.idlType, .excName a.idlType {
+    border-bottom:  1px dotted #c00;
+}
+
+.excGetSetTrue, .excGetSetFalse, .prmNullTrue, .prmNullFalse, .prmOptTrue, .prmOptFalse {
+    width:  45px;
+    text-align: center;
+}
+.excGetSetTrue, .prmNullTrue, .prmOptTrue { color:  #0c0; }
+.excGetSetFalse, .prmNullFalse, .prmOptFalse { color:  #c00; }
+
+.idlImplements a {
+    font-weight:    bold;
+}
+
+dl.attributes, dl.methods, dl.constants, dl.constructors, dl.fields, dl.dictionary-members {
+    margin-left:    2em;
+}
+
+.attributes dt, .methods dt, .constants dt, .constructors dt, .fields dt, .dictionary-members dt {
+    font-weight:    normal;
+}
+
+.attributes dt code, .methods dt code, .constants dt code, .constructors dt code, .fields dt code, .dictionary-members dt code {
+    font-weight:    bold;
+    color:  #000;
+    font-family:    monospace;
+}
+
+.attributes dt code, .fields dt code, .dictionary-members dt code {
+    background:  #ffffd2;
+}
+
+.attributes dt .idlAttrType code, .fields dt .idlFieldType code, .dictionary-members dt .idlMemberType code {
+    color:  #005a9c;
+    background:  transparent;
+    font-family:    inherit;
+    font-weight:    normal;
+    font-style: italic;
+}
+
+.methods dt code {
+    background:  #d9e6f8;
+}
+
+.constants dt code {
+    background:  #ddffd2;
+}
+
+.constructors dt code {
+    background:  #cfc;
+}
+
+.attributes dd, .methods dd, .constants dd, .constructors dd, .fields dd, .dictionary-members dd {
+    margin-bottom:  1em;
+}
+
+table.parameters, table.exceptions {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    margin: 0.5em 0;
+    width:  100%;
+}
+table.parameters { border-bottom:  1px solid #90b8de; }
+table.exceptions { border-bottom:  1px solid #deb890; }
+
+.parameters th, .exceptions th {
+    color:  #fff;
+    padding:    3px 5px;
+    text-align: left;
+    font-family:    initial;
+    font-weight:    normal;
+    text-shadow:    #666 1px 1px 0;
+}
+.parameters th { background: #90b8de; }
+.exceptions th { background: #deb890; }
+
+.parameters td, .exceptions td {
+    padding:    3px 10px;
+    border-top: 1px solid #ddd;
+    vertical-align: top;
+}
+
+.parameters tr:first-child td, .exceptions tr:first-child td {
+    border-top: none;
+}
+
+.parameters td.prmName, .exceptions td.excName, .exceptions td.excCodeName {
+    width:  100px;
+}
+
+.parameters td.prmType {
+    width:  120px;
+}
+
+table.exceptions table {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    width:  100%;
+}
+</style><link rel="stylesheet" href="https://www.w3.org/StyleSheets/TR/W3C-WD"><!--[if lt IE 9]><script src='https://www.w3.org/2008/site/js/html5shiv.js'></script><![endif]--></head>
+  <body class="h-entry" role="document" id="respecDocument"><div class="head" role="contentinfo" id="respecHeader">
+  <p>
+      
+        
+            <a href="http://www.w3.org/"><img width="72" height="48" src="https://www.w3.org/Icons/w3c_home" alt="W3C"></a>
+        
+      
+  </p>
+  <h1 class="title p-name" id="title" property="dcterms:title">Quota Management API</h1>
+  
+  <h2 id="w3c-working-draft-09-april-2015"><abbr title="World Wide Web Consortium">W3C</abbr> Working Draft <time property="dcterms:issued" class="dt-published" datetime="2015-04-09">09 April 2015</time></h2>
+  <dl>
+    
+      <dt>This version:</dt>
+      <dd><a class="u-url" href="http://www.w3.org/TR/2015/WD-quota-api-20150409/">http://www.w3.org/TR/2015/WD-quota-api-20150409/</a></dd>
+      <dt>Latest published version:</dt>
+      <dd><a href="http://www.w3.org/TR/quota-api/">http://www.w3.org/TR/quota-api/</a></dd>
+    
+    
+      <dt>Latest editor's draft:</dt>
+      <dd><a href="http://w3c.github.io/quota-api/index.html">http://w3c.github.io/quota-api/index.html</a></dd>
+    
+    
+    
+    
+    
+    
+      <dt>Previous version:</dt>
+      <dd><a rel="dcterms:replaces" href="http://www.w3.org/TR/2013/WD-quota-api-20131105/">http://www.w3.org/TR/2013/WD-quota-api-20131105/</a></dd>
+    
+    
+    <dt>Editor:</dt>
+    <dd class="p-author h-card vcard" property="bibo:editor" resource="_:editor0"><span property="rdf:first" typeof="foaf:Person"><span property="foaf:name" class="p-name fn">Kinuko Yasuda</span>, <a property="foaf:workplaceHomepage" class="p-org org h-org h-card" href="http://google.com/">Google</a></span>
+<span property="rdf:rest" resource="rdf:nil"></span>
+</dd>
+
+    
+    
+      
+        
+          <dt>Repository and Participation:</dt>
+          
+             
+                
+                  <dd>
+                    <a href="https://github.com/w3c/quota-api">
+                      We are on Github.
+                    </a>
+                  </dd>
+                
+             
+                
+                  <dd>
+                    <a href="https://github.com/w3c/quota-api/issues">
+                      File a bug/issue.
+                    </a>
+                  </dd>
+                
+             
+                
+                  <dd>
+                    <a href="https://github.com/w3c/quota-api/commits">
+                      Commit history.
+                    </a>
+                  </dd>
+                
+             
+                
+                  <dd>
+                    <a href="http://lists.w3.org/Archives/Public/public-webapps/">
+                      Mailing list.
+                    </a>
+                  </dd>
+                
+             
+          
+        
+      
+    
+  </dl>
+  
+  
+  
+  
+    
+      <p class="copyright">
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©
+        2012-2015
+        
+        <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>®</sup>
+        (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>,
+        <a href="http://www.ercim.eu/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>,
+        <a href="http://www.keio.ac.jp/">Keio</a>, <a href="http://ev.buaa.edu.cn/">Beihang</a>). 
+        
+        <abbr title="World Wide Web Consortium">W3C</abbr> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and
+        
+          <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a>
+        
+        rules apply.
+      </p>
+    
+  
+  <hr>
+</div>
+    <section id="abstract" class="introductory" property="dc:abstract"><h2 id="h-abstract" resource="#h-abstract"><span property="xhv:role" resource="xhv:heading">Abstract</span></h2>
+      <p>
+      This specification defines an API to manage usage and availability
+      of local storage resources, and defines a means by which
+      a user agent (UA) may grant Web applications permission to use
+      more local space, temporarily or persistently, via various
+      different storage APIs.
+      </p>
+    </section><section id="sotd" class="introductory"><h2 id="h-sotd" resource="#h-sotd"><span property="xhv:role" resource="xhv:heading">Status of This Document</span></h2>
+  
+    
+      
+        <p>
+          <em>This section describes the status of this document at the time of its publication.
+          Other documents may supersede this document. A list of current <abbr title="World Wide Web Consortium">W3C</abbr> publications and the
+          latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/"><abbr title="World Wide Web Consortium">W3C</abbr> technical reports index</a> at
+          http://www.w3.org/TR/.</em>
+        </p>
+        
+        
+    <p>
+      This document is a proposal that is being made available for public
+      review in order to solicit feedback, particularly from
+      implementors, with a goal of potential cross-browser implementation
+      and standardization.
+    </p>
+    
+        
+        <p>
+          This document was published by the <a href="http://www.w3.org/2008/webapps/">Web Applications (WebApps) Working Group</a> as a Working Draft.
+          
+            This document is intended to become a <abbr title="World Wide Web Consortium">W3C</abbr> Recommendation.
+          
+          
+            If you wish to make comments regarding this document, please send them to 
+            <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> 
+            (<a href="mailto:public-webapps-request@w3.org?subject=subscribe">subscribe</a>,
+            <a href="http://lists.w3.org/Archives/Public/public-webapps/">archives</a>).
+          
+          
+          
+          
+          
+            
+            All comments are welcome.
+            
+          
+        </p>
+        
+        
+        
+          <p>
+            Publication as a Working Draft does not imply endorsement by the <abbr title="World Wide Web Consortium">W3C</abbr>
+            Membership. This is a draft document and may be updated, replaced or obsoleted by other
+            documents at any time. It is inappropriate to cite this document as other than work in
+            progress.
+          </p>
+        
+        
+        
+        <p>
+          
+            This document was produced by a group operating under the 
+            <a id="sotd_patent" property="w3p:patentRules" href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <abbr title="World Wide Web Consortium">W3C</abbr> Patent
+            Policy</a>.
+          
+          
+          
+            
+              <abbr title="World Wide Web Consortium">W3C</abbr> maintains a <a href="" rel="disclosure">public list of any patent
+              disclosures</a> 
+            
+            made in connection with the deliverables of the group; that page also includes
+            instructions for disclosing a patent. An individual who has actual knowledge of a patent
+            which the individual believes contains
+            <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential
+            Claim(s)</a> must disclose the information in accordance with
+            <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
+            6 of the <abbr title="World Wide Web Consortium">W3C</abbr> Patent Policy</a>.
+          
+          
+        </p>
+        
+          <p>This document is governed by the <a id="w3c_process_revision" href="http://www.w3.org/2014/Process-20140801/">1 August 2014 <abbr title="World Wide Web Consortium">W3C</abbr> Process Document</a>.
+          </p>
+        
+        
+      
+    
+  
+</section><section id="toc"><h2 class="introductory" id="h-toc" resource="#h-toc"><span property="xhv:role" resource="xhv:heading">Table of Contents</span></h2><ul class="toc" role="directory" id="respecContents"><li class="tocline"><a href="#introduction" class="tocxref"><span class="secno">1. </span>Introduction</a></li><li class="tocline"><a href="#conformance" class="tocxref"><span class="secno">2. </span>Conformance</a></li><li class="tocline"><a href="#terminology" class="tocxref"><span class="secno">3. </span>Terminology</a></li><li class="tocline"><a href="#storage-types" class="tocxref"><span class="secno">4. </span>Storage Types</a><ul class="toc"><li class="tocline"><a href="#temporary-vs-persistent" class="tocxref"><span class="secno">4.1 </span>Temporary vs Persistent</a></li><li class="tocline"><a href="#examples" class="tocxref"><span class="secno">4.2 </span>Examples</a></li></ul></li><li class="tocline"><a href="#quota-management-api" class="tocxref"><span class="secno">5. </span>Quota Management API</a><ul class="toc"><li class="tocline"><a href="#storagetype-enum" class="tocxref"><span class="secno">5.1 </span><code class="idlType">StorageType</code> enum</a></li><li class="tocline"><a href="#storageinfo-dictionary" class="tocxref"><span class="secno">5.2 </span><code class="idlType">StorageInfo</code> dictionary</a><ul class="toc"><li class="tocline"><a href="#dictionary-storageinfo-members" class="tocxref"><span class="secno">5.2.1 </span>Dictionary <span class="formerLink"><code>StorageInfo</code></span> Members</a></li></ul></li><li class="tocline"><a href="#storagequota-interface" class="tocxref"><span class="secno">5.3 </span><code class="idlType">StorageQuota</code> interface</a><ul class="toc"><li class="tocline"><a href="#attributes" class="tocxref"><span class="secno">5.3.1 </span>Attributes</a></li><li class="tocline"><a href="#methods" class="tocxref"><span class="secno">5.3.2 </span>Methods</a></li><li class="tocline"><a href="#accessing-storagequota-interface" class="tocxref"><span class="secno">5.3.3 </span>Accessing <code class="idlType"><span class="formerLink"><code>StorageQuota</code></span></code> interface</a><ul class="toc"><li class="tocline"><a href="#attributes-1" class="tocxref"><span class="secno">5.3.3.1 </span>Attributes</a></li></ul></li></ul></li><li class="tocline"><a href="#storageevent-interface" class="tocxref"><span class="secno">5.4 </span><code class="idlType">StorageEvent</code> interface</a><ul class="toc"><li class="tocline"><a href="#attributes-2" class="tocxref"><span class="secno">5.4.1 </span>Attributes</a></li></ul></li><li class="tocline"><a href="#storagewatcher-interface" class="tocxref"><span class="secno">5.5 </span><code class="idlType">StorageWatcher</code> interface</a><ul class="toc"><li class="tocline"><a href="#attributes-3" class="tocxref"><span class="secno">5.5.1 </span>Attributes</a></li><li class="tocline"><a href="#methods-1" class="tocxref"><span class="secno">5.5.2 </span>Methods</a></li></ul></li><li class="tocline"><a href="#restrictions" class="tocxref"><span class="secno">5.6 </span>Restrictions</a></li></ul></li><li class="tocline"><a href="#storage-pressure-events" class="tocxref"><span class="secno">6. </span>Storage Pressure Events</a><ul class="toc"><li class="tocline"><a href="#extensions-to-the-serviceworkerglobalscope-interface" class="tocxref"><span class="secno">6.1 </span>Extensions to the <code class="idlType">ServiceWorkerGlobalScope</code> interface</a><ul class="toc"><li class="tocline"><a href="#attributes-4" class="tocxref"><span class="secno">6.1.1 </span>Attributes</a></li></ul></li><li class="tocline"><a href="#beforeevictevent-interface" class="tocxref"><span class="secno">6.2 </span><code class="idlType">BeforeEvictEvent</code> interface</a><ul class="toc"><li class="tocline"><a href="#attributes-5" class="tocxref"><span class="secno">6.2.1 </span>Attributes</a></li></ul></li><li class="tocline"><a href="#evictedevent-interface" class="tocxref"><span class="secno">6.3 </span><code class="idlType">EvictedEvent</code> interface</a></li></ul></li><li class="tocline"><a href="#quota-handling-in-storage-apis" class="tocxref"><span class="secno">7. </span>Quota handling in storage APIs</a></li><li class="tocline"><a href="#acknowledgements" class="tocxref"><span class="secno">A. </span>Acknowledgements</a></li><li class="tocline"><a href="#references" class="tocxref"><span class="secno">B. </span>References</a><ul class="toc"><li class="tocline"><a href="#normative-references" class="tocxref"><span class="secno">B.1 </span>Normative references</a></li><li class="tocline"><a href="#informative-references" class="tocxref"><span class="secno">B.2 </span>Informative references</a></li></ul></li></ul></section>
+
+    
+
+    <section class="informative" id="introduction" typeof="bibo:Chapter" resource="#introduction" property="bibo:hasPart">
+      <!--OddPage--><h2 id="h-introduction" resource="#h-introduction"><span property="xhv:role" resource="xhv:heading"><span class="secno">1. </span>Introduction</span></h2><p><em>This section is non-normative.</em></p>
+      <p>
+      Today we have a variety of storage APIs
+      that can store inherently complex or large data
+      in order to satisfy offline data requirements of Web applications.
+      Examples of these APIs include:
+      Application Cache [<cite><a class="bibref" href="#bib-OFFLINE-WEBAPPS">OFFLINE-WEBAPPS</a></cite>],
+      FileSystem API [<cite><a class="bibref" href="#bib-FILE-SYSTEM">FILE-SYSTEM</a></cite>][<cite><a class="bibref" href="#bib-NEW-FILE-SYSTEM">NEW-FILE-SYSTEM</a></cite>],
+      Indexed Database [<cite><a class="bibref" href="#bib-INDEXEDDB">INDEXEDDB</a></cite>] and
+      Web SQL Database [<cite><a class="bibref" href="#bib-WEB-SQL">WEB-SQL</a></cite>].
+      </p>
+      <p>
+      These APIs may require larger local space than the conventional
+      cookie storage or Web Storage [<cite><a class="bibref" href="#bib-WEBSTORAGE">WEBSTORAGE</a></cite>], but they do not provide
+      a means by which a Web application can query and manage how much
+      data is currently stored and how much more can be stored.
+      </p>
+      <p>
+      This specification defines an API to query and manage usage and
+      availability of a user's local storage.  The storage space granted
+      by the API is intended to be shared by different storage APIs,
+      therefore a user and UA only need to manage single upper limit
+      for all storage per logical application unit, e.g. per origin or
+      per browser (which is implementation specific).
+      </p>
+    </section>
+
+    <section id="conformance" typeof="bibo:Chapter" resource="#conformance" property="bibo:hasPart"><!--OddPage--><h2 id="h-conformance" resource="#h-conformance"><span property="xhv:role" resource="xhv:heading"><span class="secno">2. </span>Conformance</span></h2>
+<p>
+  As well as sections marked as non-normative, all authoring guidelines, diagrams, examples,
+  and notes in this specification are non-normative. Everything else in this specification is
+  normative.
+</p>
+<p id="respecRFC2119">The key word <em class="rfc2119" title="MUST">MUST</em> is 
+  to be interpreted as described in [<cite><a class="bibref" href="#bib-RFC2119">RFC2119</a></cite>].
+</p>
+
+    <p>
+     User agents that use ECMAScript to implement the APIs defined in this
+     specification <em class="rfc2119" title="MUST">MUST</em> implement them in a manner consistent with the
+     ECMAScript Bindings defined in the Web IDL specification [<cite><a class="bibref" href="#bib-WEBIDL">WEBIDL</a></cite>] as this
+     specification uses that specification and terminology.
+    </p>
+    </section>
+
+    <section id="terminology" typeof="bibo:Chapter" resource="#terminology" property="bibo:hasPart">
+      <!--OddPage--><h2 id="h-terminology" resource="#h-terminology"><span property="xhv:role" resource="xhv:heading"><span class="secno">3. </span>Terminology</span></h2>
+      <p>
+      The terms
+  <dfn id="dfn-event-handler"><a href="http://www.w3.org/TR/html5/webappapis.html#event-handlers">event handler</a></dfn>,
+  <dfn id="dfn-event-handler-event-type"><a href="http://www.w3.org/TR/html5/webappapis.html#event-handler-event-type">event handler event type</a></dfn>,
+   <dfn id="dfn-fires-a-simple-event"><a href="http://dev.w3.org/html5/spec/webappapis.html#fire-a-simple-event">fires a simple event</a></dfn>
+    are defined in [<cite><a class="bibref" href="#bib-HTML5">HTML5</a></cite>].
+      </p>
+
+      <p>
+      The <dfn id="dfn-event"><a href="http://www.w3.org/TR/dom/#interface-event">Event</a></dfn>, <dfn id="dfn-eventtarget"><a href="http://www.w3.org/TR/dom/#eventtarget">EventTarget</a></dfn>,
+      <dfn id="dfn-eventlistener-interfaces-are-defined-in-dom4-.x"><a href="http://www.w3.org/TR/dom/#eventlistener">EventListener</a> interfaces are defined in [<cite><a class="bibref" href="#bib-DOM4">DOM4</a></cite>].
+      </dfn></p>
+
+      <p>
+      The <dfn id="dfn-domerror"><a href="http://www.w3.org/TR/dom/#interface-domerror">DOMError</a></dfn> and
+      <dfn id="dfn-domexception"><a href="http://www.w3.org/TR/dom/#exception-domexception">DOMException</a></dfn>
+      interfaces are defined in [<cite><a class="bibref" href="#bib-DOM4">DOM4</a></cite>].
+      </p>
+
+      <p>
+        The <dfn id="dfn-promise"><a href="http://dom.spec.whatwg.org/#promises">Promise</a></dfn>
+        interface is currently defined and discussed in <a href="http://dom.spec.whatwg.org/">the WHATWG DOM specification</a>.
+      </p>
+
+      <p>
+        The terms
+        <a href="http://www.w3.org/TR/service-workers/#dfn-service-worker"><dfn id="dfn-service-worker">service worker</dfn></a> and
+        <a href="http://www.w3.org/TR/service-workers/#dfn-scope-url"><dfn id="dfn-scope-url">scope url</dfn></a>,
+        and the types
+        <a href="http://www.w3.org/TR/service-workers/#service-worker-global-scope-interface"><dfn id="dfn-serviceworkerglobalscope">ServiceWorkerGlobalScope</dfn></a>,
+        <a href="http://www.w3.org/TR/service-workers/#extendable-event-interface"><dfn id="dfn-extendableevent">ExtendableEvent</dfn></a>,
+        and <a href="http://www.w3.org/TR/service-workers/#extendable-event-init-dictionary"><dfn id="dfn-extendableeventinit">ExtendableEventInit</dfn></a>
+        are defined in [<cite><a class="bibref" href="#bib-SERVICE-WORKERS">SERVICE-WORKERS</a></cite>].
+      </p>
+    </section>
+
+    <section id="storage-types" typeof="bibo:Chapter" resource="#storage-types" property="bibo:hasPart">
+      <!--OddPage--><h2 id="h-storage-types" resource="#h-storage-types"><span property="xhv:role" resource="xhv:heading"><span class="secno">4. </span>Storage Types</span></h2>
+
+      <section class="informative" id="temporary-vs-persistent" typeof="bibo:Chapter" resource="#temporary-vs-persistent" property="bibo:hasPart">
+        <h3 id="h-temporary-vs-persistent" resource="#h-temporary-vs-persistent"><span property="xhv:role" resource="xhv:heading"><span class="secno">4.1 </span>Temporary vs Persistent</span></h3><p><em>This section is non-normative.</em></p>
+      <p>
+        A Web application can request <a href="#temporary" class="internalDFN">temporary</a> or
+        <a href="#persistent" class="internalDFN">persistent</a> local storage space depending
+        on its purpose.
+      </p>
+      <ul>
+        <li>
+        <dfn id="temporary">Temporary</dfn> storage is a transient
+        storage that is more easily accessible by any Web applications
+        without upfront quota request or user prompting,
+        but the data stored in the storage
+        may get deleted at any time at the UA's discretion.
+        This storage can be viewed as analogous to the '/tmp' directory of
+        a traditional filesystem.
+        </li><li>
+        <dfn id="persistent">Persistent</dfn> storage needs upfront
+        quota request which possibly triggers user prompting, but should
+        never get deleted by the UA without the user’s explicit
+        instruction.
+      </li></ul>
+
+        <p>
+        <a href="#temporary" class="internalDFN">Temporary</a> type of storage is
+        especially useful
+        if an application wants to cache data locally to improve
+        its performance, but can fall back to fetching or recreating
+        the same data at a data loss.
+        </p>
+
+        <p>
+        Conversely,
+        <a href="#persistent" class="internalDFN">persistent</a> type of storage is useful
+        if an application wants to store critical offline data that
+        is necessary to be functional, or wants to manage local data
+        amount and lifetime on its own policy rather than relying on
+        the UA's default eviction policy for <a href="#temporary" class="internalDFN">temporary</a> storage.
+        </p>
+      <p></p>
+      </section>
+
+      <section id="examples" typeof="bibo:Chapter" resource="#examples" property="bibo:hasPart">
+      <h3 id="h-examples" resource="#h-examples"><span property="xhv:role" resource="xhv:heading"><span class="secno">4.2 </span>Examples</span></h3>
+        <p>
+        Suppose there is a photo editing application.
+        This application
+        manages user photo data using Indexed Database [<cite><a class="bibref" href="#bib-INDEXEDDB">INDEXEDDB</a></cite>],
+        stores photo images using Filesystem API [<cite><a class="bibref" href="#bib-FILE-SYSTEM">FILE-SYSTEM</a></cite>]
+        [<cite><a class="bibref" href="#bib-NEW-FILE-SYSTEM">NEW-FILE-SYSTEM</a></cite>] and
+        optinally utilizes Application Cache [<cite><a class="bibref" href="#bib-OFFLINE-WEBAPPS">OFFLINE-WEBAPPS</a></cite>]
+        to make it work offline.
+        </p>
+        <p>
+        The application needs to query how much data it can store in the
+        <a href="#temporary" class="internalDFN">temporary</a> storage
+        to determine its initial cache size.
+        </p>
+        <div class="example"><div class="example-title"><span>Example 1</span></div><pre class="example highlight prettyprint prettyprinted"><span class="com">// Query current usage and availability in Temporary storage:</span><span class="pln">
+navigator</span><span class="pun">.</span><span class="pln">storageQuota</span><span class="pun">.</span><span class="pln">queryInfo</span><span class="pun">(</span><span class="str">"temporary"</span><span class="pun">).</span><span class="kwd">then</span><span class="pun">(</span><span class="pln">
+  </span><span class="kwd">function</span><span class="pun">(</span><span class="pln">storageInfo</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+    </span><span class="com">// Continue to initialize local cache using the obtained</span><span class="pln">
+    </span><span class="com">// usage and remaining space (quota - usage) information.</span><span class="pln">
+    initializeCache</span><span class="pun">(</span><span class="pln">storageInfo</span><span class="pun">.</span><span class="pln">usage</span><span class="pun">,</span><span class="pln">
+                    storageInfo</span><span class="pun">.</span><span class="pln">quota </span><span class="pun">-</span><span class="pln"> storageInfo</span><span class="pun">.</span><span class="pln">usage</span><span class="pun">);</span><span class="pln">
+  </span><span class="pun">});</span></pre></div>
+
+          <p>
+          Similarly, the application needs to request
+          additional persistent storage to support offline mode
+          when it is enabled by the user.
+          </p>
+          <div class="example"><div class="example-title"><span>Example 2</span></div><pre class="example highlight prettyprint prettyprinted"><span class="com">// A function which is to be called when 'offline-mode' is enabled</span><span class="pln">
+</span><span class="com">// by the user.</span><span class="pln">
+</span><span class="kwd">function</span><span class="pln"> onOfflineModeEnabled</span><span class="pun">(</span><span class="pln">amountOfSpaceNeeded</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+  </span><span class="com">// First check how much we can use in the Persistent storage.</span><span class="pln">
+  navigator</span><span class="pun">.</span><span class="pln">storageQuota</span><span class="pun">.</span><span class="pln">queryInfo</span><span class="pun">(</span><span class="str">"persistent"</span><span class="pun">).</span><span class="kwd">then</span><span class="pun">(</span><span class="pln">
+    </span><span class="kwd">function</span><span class="pln"> </span><span class="pun">(</span><span class="pln">storageInfo</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+      </span><span class="kwd">var</span><span class="pln"> availableSpace </span><span class="pun">=</span><span class="pln"> storageInfo</span><span class="pun">.</span><span class="pln">quota </span><span class="pun">-</span><span class="pln"> storageInfo</span><span class="pun">.</span><span class="pln">usage</span><span class="pun">;</span><span class="pln">
+      </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln">availableSpace </span><span class="pun">&gt;=</span><span class="pln"> amountOfSpaceNeeded</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+        </span><span class="com">// We're fine; just continue with the returned storage info.</span><span class="pln">
+        </span><span class="kwd">return</span><span class="pln"> storageInfo</span><span class="pun">;</span><span class="pln">
+      </span><span class="pun">}</span><span class="pln">
+      </span><span class="kwd">return</span><span class="pln"> navigator</span><span class="pun">.</span><span class="pln">storageQuota</span><span class="pun">.</span><span class="pln">requestPersistentQuota</span><span class="pun">(</span><span class="pln">
+          amountOfSpaceNeeded </span><span class="pun">+</span><span class="pln"> storageInfo</span><span class="pun">.</span><span class="pln">usage</span><span class="pun">);</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln">
+  </span><span class="pun">).</span><span class="kwd">then</span><span class="pun">(</span><span class="pln">
+    </span><span class="kwd">function</span><span class="pln"> </span><span class="pun">(</span><span class="pln">storageInfo</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+      </span><span class="com">// Prepare for offline mode using the current available</span><span class="pln">
+      </span><span class="com">// storage space.</span><span class="pln">
+      prepareForOfflineMode</span><span class="pun">(</span><span class="pln">storageInfo</span><span class="pun">.</span><span class="pln">quota </span><span class="pun">-</span><span class="pln"> storageInfo</span><span class="pun">.</span><span class="pln">usage</span><span class="pun">);</span><span class="pln">
+    </span><span class="pun">},</span><span class="pln"> </span><span class="kwd">function</span><span class="pln"> </span><span class="pun">(</span><span class="pln">error</span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln">
+      </span><span class="com">// Handle error.</span><span class="pln">
+    </span><span class="pun">}</span><span class="pln">
+  </span><span class="pun">);</span><span class="pln">
+</span><span class="pun">}</span></pre></div>
+      </section>
+    </section>
+
+    <section id="quota-management-api" typeof="bibo:Chapter" resource="#quota-management-api" property="bibo:hasPart">
+      <!--OddPage--><h2 id="h-quota-management-api" resource="#h-quota-management-api"><span property="xhv:role" resource="xhv:heading"><span class="secno">5. </span>Quota Management API</span></h2>
+
+      <section id="storagetype-enum" typeof="bibo:Chapter" resource="#storagetype-enum" property="bibo:hasPart">
+        <h3 id="h-storagetype-enum" resource="#h-storagetype-enum"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.1 </span><code class="idlType">StorageType</code> enum</span></h3>
+        <pre class="idl"><span class="idlEnum" id="idl-def-StorageType">enum <span class="idlEnumID">StorageType</span> {
+    "<a href="#idl-def-StorageType.temporary" class="idlEnumItem">temporary</a>",
+    "<a href="#idl-def-StorageType.persistent" class="idlEnumItem">persistent</a>"
+};</span></pre><table class="simple"><tbody><tr><th colspan="2">Enumeration description</th></tr><tr><td><code id="idl-def-StorageType.temporary">temporary</code></td><td>Indicates <a href="#temporary" class="internalDFN">temporary</a> storage type.</td></tr><tr><td><code id="idl-def-StorageType.persistent">persistent</code></td><td>Indicates <a href="#persistent" class="internalDFN">persistent</a> storage type.</td></tr></tbody></table>
+      </section>
+
+
+      <section id="storageinfo-dictionary" typeof="bibo:Chapter" resource="#storageinfo-dictionary" property="bibo:hasPart">
+        <h3 id="h-storageinfo-dictionary" resource="#h-storageinfo-dictionary"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.2 </span><code class="idlType">StorageInfo</code> dictionary</span></h3>
+
+        <pre class="idl"><span class="idlDictionary" id="idl-def-StorageInfo">dictionary <span class="idlDictionaryID">StorageInfo</span> {
+<span class="idlMember">    <span class="idlMemberType">unsigned long long</span> <span class="idlMemberName"><a href="#widl-StorageInfo-usage">usage</a></span>;</span>
+<span class="idlMember">    <span class="idlMemberType">unsigned long long</span> <span class="idlMemberName"><a href="#widl-StorageInfo-quota">quota</a></span>;</span>
+};</span></pre><section id="dictionary-storageinfo-members" typeof="bibo:Chapter" resource="#dictionary-storageinfo-members" property="bibo:hasPart"><h4 id="h-dictionary-storageinfo-members" resource="#h-dictionary-storageinfo-members"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.2.1 </span>Dictionary <a class="idlType" href="#idl-def-StorageInfo"><code>StorageInfo</code></a> Members</span></h4><dl class="dictionary-members"><dt id="widl-StorageInfo-quota"><code>quota</code> of type <span class="idlMemberType">unsigned long long</span></dt><dd>
+          <p>
+          The current upper limit of the storage space that can be used by
+          the application for a given storage type.
+          This includes the storage area that is already used by the
+          application, so <code>storageInfo.usage</code> needs to be
+          subtracted from <code>storageInfo.quota</code> to get the
+          remaining available storage space.
+          </p>
+          <p>
+          For <a href="#temporary" class="internalDFN">temporary</a> storage
+          this value may reflect the actual storage space available
+          on the user's local device and may change from time to time.
+          For <a href="#persistent" class="internalDFN">persistent</a> storage this value must return the
+          consistent quota size that is granted to the
+          application by <code>requestPersistentQuota</code>.
+          If the application does not have the associated persistent
+          quota yet the UA may return a UA-specific default quota value
+          (which could be 0).
+          </p>
+          </dd><dt id="widl-StorageInfo-usage"><code>usage</code> of type <span class="idlMemberType">unsigned long long</span></dt><dd>
+          <p>
+          The total amount of data (in bytes)
+          stored by the application for a given storage type.
+          Depending on how the UA
+          calculates data usage the returned value
+          may differ from the exact real-time usage of the user's physical
+          local storage.
+          </p>
+          </dd></dl></section>
+      </section>
+
+      <section id="storagequota-interface" typeof="bibo:Chapter" resource="#storagequota-interface" property="bibo:hasPart">
+        <h3 id="h-storagequota-interface" resource="#h-storagequota-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.3 </span><code class="idlType">StorageQuota</code> interface</span></h3>
+
+        <p>
+        The <a href="#idl-def-StorageQuota" class="idlType"><code>StorageQuota</code></a> interface provides means to query
+        and request storage usage and quota information.
+        The API provided by the interface is asynchronous since
+        querying or allocating space in a user's local storage may require
+        blocking I/O operations, e.g. examining the local disk status or
+        making changes in a local database.
+        </p>
+
+        <pre class="idl"><span class="idlInterface" id="idl-def-StorageQuota">[<span class="extAttr">NoInterfaceObject</span>]
+interface <span class="idlInterfaceID">StorageQuota</span> {
+<span class="idlAttribute">    [<span class="extAttr">SameObject</span>]
+    readonly    attribute <span class="idlAttrType">frozen array</span> <span class="idlAttrName"><a href="#widl-StorageQuota-supportedTypes">supportedTypes</a></span>;</span>
+<span class="idlMethod">    <span class="idlMethType"><a href="#dfn-promise" class="internalDFN">Promise</a></span> <span class="idlMethName"><a href="#widl-StorageQuota-queryInfo-Promise-StorageType-type">queryInfo</a></span> (<span class="idlParam"><span class="idlParamType"><a href="#idl-def-StorageType" class="idlType"><code>StorageType</code></a></span> <span class="idlParamName">type</span></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a href="#dfn-promise" class="internalDFN">Promise</a></span> <span class="idlMethName"><a href="#widl-StorageQuota-requestPersistentQuota-Promise-unsigned-long-long-newQuota">requestPersistentQuota</a></span> (<span class="idlParam">[<span class="extAttr">Clamp</span>] <span class="idlParamType">unsigned long long</span> <span class="idlParamName">newQuota</span></span>);</span>
+};</span></pre><section id="attributes" typeof="bibo:Chapter" resource="#attributes" property="bibo:hasPart"><h4 id="h-attributes" resource="#h-attributes"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.3.1 </span>Attributes</span></h4><dl class="attributes"><dt id="widl-StorageQuota-supportedTypes"><code>supportedTypes</code> of type <span class="idlAttrType">frozen array&lt;StorageType&gt;</span>, readonly   </dt><dd>
+            List of all storage types supported by the UA.
+          </dd></dl></section><section id="methods" typeof="bibo:Chapter" resource="#methods" property="bibo:hasPart"><h4 id="h-methods" resource="#h-methods"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.3.2 </span>Methods</span></h4><dl class="methods"><dt id="widl-StorageQuota-queryInfo-Promise-StorageType-type"><code>queryInfo</code></dt><dd>
+           <p>
+           This method queries the storage info of the given storage
+           <code>type</code>.
+           This returns <code>StorageInfo</code> that has the current data
+           usage and available quota information for the application.
+           When <code>queryInfo</code> method is called, the UA must
+           run the following steps:
+           </p><ol>
+             <li>Let <var>storageType</var> be the first argument.
+             </li><li>Let <var>p</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.
+             </li><li>Run the following substeps asynchronously:
+             <ol>
+               <li>If the <var>storageType</var> is not supported by the user
+              agent (i.e. not in the <code>supportedTypes</code> array),
+              reject <var>p</var> with a "NotSupportedError" exception
+              and abort these steps.
+               </li><li>
+               Let <var>usage</var> be the total amount of data stored
+               by the application in the storage of <var>storageType</var>.
+               </li><li>
+               Let <var>quota</var> be the upper limit of the usage
+               that can be stored by the application for
+               <var>storageType</var>.
+               </li><li> Resolve <var>p</var> with a new <code><a href="#idl-def-StorageInfo" class="idlType"><code>StorageInfo</code></a></code> object, created with
+               the <var>usage</var> and <var>quota</var> values.
+             </li></ol>
+             </li><li> Return <var>p</var>.
+            </li></ol>
+           <p></p>
+           <table class="parameters"><tbody><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">type</td><td class="prmType"><code><a href="#idl-def-StorageType" class="idlType"><code>StorageType</code></a></code></td><td class="prmNullFalse"><span role="img" aria-label="False">✘</span></td><td class="prmOptFalse"><span role="img" aria-label="False">✘</span></td><td class="prmDesc"></td></tr></tbody></table><div><em>Return type: </em><code><a href="#dfn-promise" class="internalDFN">Promise</a></code></div></dd><dt id="widl-StorageQuota-requestPersistentQuota-Promise-unsigned-long-long-newQuota"><code>requestPersistentQuota</code></dt><dd>
+           <p>
+           Requests a new quota in <a href="#persistent" class="internalDFN">persistent</a> storage
+           for the requesting application.
+           It is not guaranteed that the requested amount of space
+           is granted just by calling this API, and the UA
+           may return a new <code><a href="#idl-def-StorageInfo" class="idlType"><code>StorageInfo</code></a></code> object
+           (without rejecting the request) with a smaller quota value
+           than requested.
+           Calling this API may trigger user prompting to request
+           explicit user permission to proceed.
+           </p>
+           When <code class="idlType">requestPersistentQuota</code> method is
+           called, the UA must run the following steps:
+           <ol>
+             <li>Let <var>newQuota</var> be the first argument.
+             </li><li>Let <var>p</var> be a new <a href="http://goo.gl/3TobQS">promise</a>.
+             </li><li>Run the following substeps asynchronously:
+             <ol>
+               <li>
+               Let <var>usage</var> be the total amount of data stored
+               by the application in <a href="#persistent" class="internalDFN">persistent</a> storage.
+               </li><li>
+               Let <var>quota</var> be the current quota size that is already
+               granted to the application for <a href="#persistent" class="internalDFN">persistent</a> storage.
+               If this application does not have associated persistent quota
+               yet, initialize <var>quota</var> with a UA-specific default
+               quota value (which could be 0).
+              <ol>
+                <li>If <var>quota</var> is equal to or greater than
+                  <var>newQuota</var>,
+                  let <var>grantedQuota</var> be the same value as
+                  the current <var>quota</var>.
+                </li><li>Else:
+                 <ol>
+                   <li> Check how much amount of storage the UA can allocate
+                   for the application. This step may optionally prompt the user
+                   in a UA-specific manner for permission to allow the
+                   application to store more data.
+                   </li><li> Let <var>grantedQuota</var> be the new quota size
+                   associated to the application. The <var>grantedQuota</var>
+                   may be smaller than the requested <var>newQuota</var>,
+                   but is guaranteed to be equal to or greater than the
+                   old <var>quota</var>.
+                 </li></ol>
+              </li></ol>
+              </li><li> Resolve <var>p</var> with a new
+               <code><a href="#idl-def-StorageInfo" class="idlType"><code>StorageInfo</code></a></code> object, created with
+               <var>usage</var> and <var>grantedQuota</var>.
+             </li></ol>
+             </li><li> Return <var>p</var>.
+           </li></ol>
+           <table class="parameters"><tbody><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">newQuota</td><td class="prmType"><code>unsigned long long</code></td><td class="prmNullFalse"><span role="img" aria-label="False">✘</span></td><td class="prmOptFalse"><span role="img" aria-label="False">✘</span></td><td class="prmDesc"></td></tr></tbody></table><div><em>Return type: </em><code><a href="#dfn-promise" class="internalDFN">Promise</a></code></div></dd></dl></section>
+
+        <section id="accessing-storagequota-interface" typeof="bibo:Chapter" resource="#accessing-storagequota-interface" property="bibo:hasPart">
+          <h4 id="h-accessing-storagequota-interface" resource="#h-accessing-storagequota-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.3.3 </span>Accessing <code class="idlType"><a href="#idl-def-StorageQuota" class="idlType"><code>StorageQuota</code></a></code> interface</span></h4>
+
+          <pre class="idl"><span class="idlInterface" id="idl-def-Navigator">partial interface <span class="idlInterfaceID">Navigator</span> {
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType"><a href="#idl-def-StorageQuota" class="idlType"><code>StorageQuota</code></a></span> <span class="idlAttrName"><a href="#widl-Navigator-storageQuota">storageQuota</a></span>;</span>
+};</span></pre><section id="attributes-1" typeof="bibo:Chapter" resource="#attributes-1" property="bibo:hasPart"><h5 id="h-attributes-1" resource="#h-attributes-1"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.3.3.1 </span>Attributes</span></h5><dl class="attributes"><dt id="widl-Navigator-storageQuota"><code>storageQuota</code> of type <span class="idlAttrType"><a href="#idl-def-StorageQuota" class="idlType"><code>StorageQuota</code></a></span>, readonly   </dt><dd>
+            Returns the <code><a href="#idl-def-StorageQuota" class="idlType"><code>StorageQuota</code></a></code> interface.
+            </dd></dl></section>
+        </section>
+      </section>
+
+      <section id="storageevent-interface" typeof="bibo:Chapter" resource="#storageevent-interface" property="bibo:hasPart">
+        <h3 id="h-storageevent-interface" resource="#h-storageevent-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.4 </span><code class="idlType">StorageEvent</code> interface</span></h3>
+
+        <p>
+        An event object implementing this interface is passed to
+        <code>onstoragechange</code>
+        event handler when storage information is updated.
+        </p>
+
+        <pre class="idl"><span class="idlInterface" id="idl-def-StorageEvent">[<span class="extAttr">Constructor(DOMString type, optional StorageEventInit eventInitDict)</span>]
+interface <span class="idlInterfaceID">StorageEvent</span> : <span class="idlSuperclass"><a href="#dfn-event" class="internalDFN">Event</a></span> {
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType">unsigned long long</span> <span class="idlAttrName"><a href="#widl-StorageEvent-usage">usage</a></span>;</span>
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType">unsigned long long</span> <span class="idlAttrName"><a href="#widl-StorageEvent-quota">quota</a></span>;</span>
+};</span></pre><section id="attributes-2" typeof="bibo:Chapter" resource="#attributes-2" property="bibo:hasPart"><h4 id="h-attributes-2" resource="#h-attributes-2"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.4.1 </span>Attributes</span></h4><dl class="attributes"><dt id="widl-StorageEvent-quota"><code>quota</code> of type <span class="idlAttrType">unsigned long long</span>, readonly   </dt><dd>
+          The current upper limit of the storage space that can be used by
+          the application for a given storage type.
+          </dd><dt id="widl-StorageEvent-usage"><code>usage</code> of type <span class="idlAttrType">unsigned long long</span>, readonly   </dt><dd>
+          The total amount of data (in bytes)
+          stored by the application for a given storage type.
+          </dd></dl></section>
+      </section>
+
+      <section typeof="bibo:Chapter" resource="" property="bibo:hasPart">
+      <p>Events are constructed as defined in
+      <a href="http://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#constructing-events">constructing events</a> in [<cite><a class="bibref" href="#bib-DOM4">DOM4</a></cite>].
+      </p>
+
+      <pre class="idl"><span class="idlDictionary" id="idl-def-StorageEventInit">dictionary <span class="idlDictionaryID">StorageEventInit</span> : <span class="idlSuperclass">EventInit</span> {
+<span class="idlMember">    <span class="idlMemberType">unsigned long long</span> <span class="idlMemberName"><a href="#widl-StorageEventInit-usage">usage</a></span> = <span class="idlMemberValue">0</span>;</span>
+<span class="idlMember">    <span class="idlMemberType">unsigned long long</span> <span class="idlMemberName"><a href="#widl-StorageEventInit-quota">quota</a></span> = <span class="idlMemberValue">0</span>;</span>
+};</span></pre><section typeof="bibo:Chapter" resource="#dictionary-storageeventinit-members" property="bibo:hasPart"><h4 id="dictionary-storageeventinit-members" resource="#dictionary-storageeventinit-members"><span property="xhv:role" resource="xhv:heading">Dictionary <a class="idlType" href="#idl-def-StorageEventInit"><code>StorageEventInit</code></a> Members</span></h4><dl class="dictionary-members"><dt id="widl-StorageEventInit-quota"><code>quota</code> of type <span class="idlMemberType">unsigned long long</span>, defaulting to <code>0</code></dt><dd>
+        </dd><dt id="widl-StorageEventInit-usage"><code>usage</code> of type <span class="idlMemberType">unsigned long long</span>, defaulting to <code>0</code></dt><dd>
+        </dd></dl></section>
+      </section>
+
+      <section id="storagewatcher-interface" typeof="bibo:Chapter" resource="#storagewatcher-interface" property="bibo:hasPart">
+        <h3 id="h-storagewatcher-interface" resource="#h-storagewatcher-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.5 </span><code class="idlType">StorageWatcher</code> interface</span></h3>
+
+        <p>
+        <a href="#idl-def-StorageWatcher" class="idlType"><code>StorageWatcher</code></a> interface is to watch real time
+        storage changes. This fires <code>storagechange</code> event
+        every time a storage status change is detected by the UA,
+        or about every <code>rate</code> millisecond(s),
+        whichever is least frequent.
+        </p>
+
+        <p>
+        If <code>rate</code> is not given in the constructor, the UA
+        fires <code>storagechange</code> event whenever it detects
+        the usage or quota changes in the backend, but no more frequent
+        than 50ms.
+        </p>
+
+        <p>
+        Regardless of the <code>rate</code> value,
+        the UA must fire one <code>storagechange</code> event
+        with the current storage status
+        immediately (but asynchronously) after a watcher is constructed,
+        unless <code>close()</code> is called before the first
+        <code>storagechange</code> event is dispatched.
+        </p>
+
+        <pre class="idl"><span class="idlInterface" id="idl-def-StorageWatcher">[<span class="extAttr">Constructor(StorageType type, optional unsigned long rate)</span>]
+interface <span class="idlInterfaceID">StorageWatcher</span> : <span class="idlSuperclass"><a href="#dfn-eventtarget" class="internalDFN">EventTarget</a></span> {
+<span class="idlMethod">    <span class="idlMethType">void</span> <span class="idlMethName"><a href="#widl-StorageWatcher-close-void">close</a></span> ();</span>
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType"><a href="#idl-def-StorageType" class="idlType"><code>StorageType</code></a></span>   <span class="idlAttrName"><a href="#widl-StorageWatcher-type">type</a></span>;</span>
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType">unsigned long</span> <span class="idlAttrName"><a href="#widl-StorageWatcher-rate">rate</a></span>;</span>
+<span class="idlAttribute">                attribute <span class="idlAttrType">EventListener</span> <span class="idlAttrName"><a href="#widl-StorageWatcher-onstoragechange">onstoragechange</a></span>;</span>
+};</span></pre><section id="attributes-3" typeof="bibo:Chapter" resource="#attributes-3" property="bibo:hasPart"><h4 id="h-attributes-3" resource="#h-attributes-3"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.5.1 </span>Attributes</span></h4><dl class="attributes"><dt id="widl-StorageWatcher-onstoragechange"><code>onstoragechange</code> of type <span class="idlAttrType">EventListener</span>,            </dt><dd>
+          The event handler for the <code>storagechange</code> event.
+          </dd><dt id="widl-StorageWatcher-rate"><code>rate</code> of type <span class="idlAttrType">unsigned long</span>, readonly   </dt><dd>
+          Returns the <code>rate</code> value which this
+          watcher is constructed with.
+          </dd><dt id="widl-StorageWatcher-type"><code>type</code> of type <span class="idlAttrType"><a href="#idl-def-StorageType" class="idlType"><code>StorageType</code></a></span>, readonly   </dt><dd>
+          Returns the storage type <code>type</code> which this
+          watcher is constructed with and is monitoring changes on.
+          </dd></dl></section><section id="methods-1" typeof="bibo:Chapter" resource="#methods-1" property="bibo:hasPart"><h4 id="h-methods-1" resource="#h-methods-1"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.5.2 </span>Methods</span></h4><dl class="methods"><dt id="widl-StorageWatcher-close-void"><code>close</code></dt><dd>
+          Explicitly closes the watcher.
+          Once close() is called the UA never fires events on this instance.
+          <div><em>No parameters.</em></div><div><em>Return type: </em><code>void</code></div></dd></dl></section>
+      </section>
+
+        <section id="restrictions" typeof="bibo:Chapter" resource="#restrictions" property="bibo:hasPart">
+        <h3 id="h-restrictions" resource="#h-restrictions"><span property="xhv:role" resource="xhv:heading"><span class="secno">5.6 </span>Restrictions</span></h3>
+        <p>
+        The space queried and granted by <a class="idlType" href="#idl-def-StorageQuota"><code>StorageQuota</code></a> have the
+        following properties:
+        </p>
+        <ul>
+          <li>The space granted for <a href="#persistent" class="internalDFN">persistent</a> type
+          should not be deleted by the UA,
+          other than in a response to a removal API call, without explicit authorization from the user.
+          </li><li>The space granted for <a href="#temporary" class="internalDFN">temporary</a> type may be deleted by the UA at its discretion, without application or user intervention due to local resource shortage or for other reasons.
+          </li><li>When the UA deletes the data in <a href="#temporary" class="internalDFN">temporary</a>
+          storage, the UA should avoid partial or incomplete deletion which could leave the application in an unrecoverable inconsistent state.
+        </li></ul>
+        </section>
+      </section>
+
+      <section id="storage-pressure-events" typeof="bibo:Chapter" resource="#storage-pressure-events" property="bibo:hasPart">
+      <!--OddPage--><h2 id="h-storage-pressure-events" resource="#h-storage-pressure-events"><span property="xhv:role" resource="xhv:heading"><span class="secno">6. </span>Storage Pressure Events</span></h2>
+
+        <section id="extensions-to-the-serviceworkerglobalscope-interface" typeof="bibo:Chapter" resource="#extensions-to-the-serviceworkerglobalscope-interface" property="bibo:hasPart">
+          <h3 id="h-extensions-to-the-serviceworkerglobalscope-interface" resource="#h-extensions-to-the-serviceworkerglobalscope-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">6.1 </span>Extensions to the <code class="idlType">ServiceWorkerGlobalScope</code> interface</span></h3>
+
+          <p>
+          The Service Worker specification [<cite><a class="bibref" href="#bib-SERVICE-WORKERS">SERVICE-WORKERS</a></cite>] defines a
+          <code>ServiceWorkerGlobalScope</code> interface,
+          which this specification extends.
+          </p>
+
+          <pre class="idl"><span class="idlInterface" id="idl-def-ServiceWorkerGlobalScope">partial interface <span class="idlInterfaceID">ServiceWorkerGlobalScope</span> {
+<span class="idlAttribute">                attribute <span class="idlAttrType">EventHandler</span> <span class="idlAttrName"><a href="#widl-ServiceWorkerGlobalScope-onbeforeevicted">onbeforeevicted</a></span>;</span>
+<span class="idlAttribute">                attribute <span class="idlAttrType">EventHandler</span> <span class="idlAttrName"><a href="#widl-ServiceWorkerGlobalScope-onevicted">onevicted</a></span>;</span>
+};</span></pre><section id="attributes-4" typeof="bibo:Chapter" resource="#attributes-4" property="bibo:hasPart"><h4 id="h-attributes-4" resource="#h-attributes-4"><span property="xhv:role" resource="xhv:heading"><span class="secno">6.1.1 </span>Attributes</span></h4><dl class="attributes"><dt id="widl-ServiceWorkerGlobalScope-onbeforeevicted"><code>onbeforeevicted</code> of type <span class="idlAttrType">EventHandler</span>,            </dt><dd>
+            The <code>onbeforeevicted</code> attribute is an
+            <a href="#dfn-event-handler" class="internalDFN">event handler</a> whose corresponding event handler type is
+            <code>beforeevicted</code>.
+            </dd><dt id="widl-ServiceWorkerGlobalScope-onevicted"><code>onevicted</code> of type <span class="idlAttrType">EventHandler</span>,            </dt><dd>
+            The <code>onevicted</code> attribute is an
+            <a href="#dfn-event-handler" class="internalDFN">event handler</a> whose corresponding
+            event handler type is <code>evicted</code>.
+            </dd></dl></section>
+        </section>
+
+        <p>
+        This event is going to be dispatched when the Quota Management API
+        detects that there is a storage pressure. If the <a href="#dfn-service-worker" class="internalDFN">service worker</a>
+        that received this event did not give back enough space the UA may
+        evict its content entirely.
+        </p>
+
+        <section id="beforeevictevent-interface" typeof="bibo:Chapter" resource="#beforeevictevent-interface" property="bibo:hasPart">
+          <h3 id="h-beforeevictevent-interface" resource="#h-beforeevictevent-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">6.2 </span><code class="idlType">BeforeEvictEvent</code> interface</span></h3>
+
+          <pre class="idl"><span class="idlInterface" id="idl-def-BeforeEvictEvent">[<span class="extAttr">Constructor(DOMString type, optional BeforeEvictEventInit eventInitDict), Exposed=ServiceWorker</span>]
+interface <span class="idlInterfaceID">BeforeEvictEvent</span> : <span class="idlSuperclass"><a href="#dfn-extendableevent" class="internalDFN">ExtendableEvent</a></span> {
+<span class="idlAttribute">    readonly    attribute <span class="idlAttrType">unsigned long long</span> <span class="idlAttrName"><a href="#widl-BeforeEvictEvent-requestedBytes">requestedBytes</a></span>;</span>
+};</span></pre><section id="attributes-5" typeof="bibo:Chapter" resource="#attributes-5" property="bibo:hasPart"><h4 id="h-attributes-5" resource="#h-attributes-5"><span property="xhv:role" resource="xhv:heading"><span class="secno">6.2.1 </span>Attributes</span></h4><dl class="attributes"><dt id="widl-BeforeEvictEvent-requestedBytes"><code>requestedBytes</code> of type <span class="idlAttrType">unsigned long long</span>, readonly   </dt><dd>
+            The number of bytes that is requested to free up.
+            </dd></dl></section>
+        </section>
+
+        <section id="evictedevent-interface" typeof="bibo:Chapter" resource="#evictedevent-interface" property="bibo:hasPart">
+          <h3 id="h-evictedevent-interface" resource="#h-evictedevent-interface"><span property="xhv:role" resource="xhv:heading"><span class="secno">6.3 </span><code class="idlType">EvictedEvent</code> interface</span></h3>
+
+          <pre class="idl"><span class="idlInterface" id="idl-def-EvictedEvent">[<span class="extAttr">Constructor(DOMString type, optional EvictedEventInit eventInitDict), Exposed=ServiceWorker</span>]
+interface <span class="idlInterfaceID">EvictedEvent</span> : <span class="idlSuperclass"><a href="#dfn-extendableevent" class="internalDFN">ExtendableEvent</a></span> {
+};</span></pre>
+        </section>
+        <p>
+        This event is only going to be dispatched if there are foreground pages
+        that are otherwise keep the <a href="#dfn-service-worker" class="internalDFN">service worker</a>'s
+        script and registrations alive.
+        It is thrown to let the <a href="#dfn-service-worker" class="internalDFN">service worker</a> communicate to clients
+        that the app has been removed and is unlikely to continue to work.
+        The clients can show appropriate UI in response.
+        </p>
+      </section>
+
+    
+
+    <section class="informative" id="quota-handling-in-storage-apis" typeof="bibo:Chapter" resource="#quota-handling-in-storage-apis" property="bibo:hasPart">
+      <!--OddPage--><h2 id="h-quota-handling-in-storage-apis" resource="#h-quota-handling-in-storage-apis"><span property="xhv:role" resource="xhv:heading"><span class="secno">7. </span>Quota handling in storage APIs</span></h2><p><em>This section is non-normative.</em></p>
+      Storage APIs except for Web Storage, i.e.
+      Application Cache,
+      File System API,
+      Indexed Database and Web SQL Database,
+      should respect the quota management API and must have following properties:
+      <ul>
+        <li> Any write requests which will exceed the granted quota limit should
+        fail with <a href="http://www.w3.org/TR/dom/#dom-domexception-quota_exceeded_err">QuotaExceededError</a>
+        <code>DOMError</code> or <code>DOMException</code>
+        (including when the granted quota is zero, i.e. the UA refuses
+        to grant any quota or the storage is disabled for the site).
+        As an exception, if the write is being made in the background where
+        it cannot throw
+        exception or return an error, the API may fail silently.  For example, Application Cache may silently discard or fail to cache data when it is hitting quota limit.
+        </li><li> For FileSystem API [<cite><a class="bibref" href="#bib-FILE-SYSTEM">FILE-SYSTEM</a></cite>][<cite><a class="bibref" href="#bib-NEW-FILE-SYSTEM">NEW-FILE-SYSTEM</a></cite>] the UA must store data for <b>temporary filesystem</b> in <a href="#temporary" class="internalDFN">temporary</a> storage, and data for <b>persistent filesystem</b> in <a href="#persistent" class="internalDFN">persistent</a> storage.
+        </li><li> For Application Cache [<cite><a class="bibref" href="#bib-OFFLINE-WEBAPPS">OFFLINE-WEBAPPS</a></cite>] the UA must store its cache data
+          in <a href="#temporary" class="internalDFN">temporary</a> storage.
+        </li><li> Other storage APIs may store data in either <a href="#temporary">temporary</a> or <a href="#persistent">persistent</a> storage.  When an API stores data in
+        <a href="#persistent" class="internalDFN">persistent</a> storage by default, storing data or
+        opening the storage (e.g. opening a database) may trigger user prompting by the UA to request for user permission.
+      </li></ul>
+
+        <div class="note"><div class="note-title" aria-level="3" role="heading" id="h-note1"><span>Note</span></div><div class="">
+          <p>
+          Indexed Database [<cite><a class="bibref" href="#bib-INDEXEDDB">INDEXEDDB</a></cite>] is expected to have <a href="#temporary" class="internalDFN">temporary</a>
+          and <a href="#persistent" class="internalDFN">persistent</a> storage types in its next version, and
+          when that happens the UA should store data for temporary database
+          in <a href="#temporary" class="internalDFN">temporary</a> storage and for persistent database
+          in <a href="#persistent" class="internalDFN">persistent</a> storage, respectively.
+          </p>
+        </div></div>
+
+    </section>
+
+    <section class="appendix" id="acknowledgements" typeof="bibo:Chapter" resource="#acknowledgements" property="bibo:hasPart">
+      <!--OddPage--><h2 id="h-acknowledgements" resource="#h-acknowledgements"><span property="xhv:role" resource="xhv:heading"><span class="secno">A. </span>Acknowledgements</span></h2>
+      <p>
+        Many thanks to Robin Berjon for making our lives so much easier with his cool tool.
+      </p>
+    </section>
+  
+
+<section id="references" class="appendix" typeof="bibo:Chapter" resource="#references" property="bibo:hasPart"><!--OddPage--><h2 id="h-references" resource="#h-references"><span property="xhv:role" resource="xhv:heading"><span class="secno">B. </span>References</span></h2><section id="normative-references" typeof="bibo:Chapter" resource="#normative-references" property="bibo:hasPart"><h3 id="h-normative-references" resource="#h-normative-references"><span property="xhv:role" resource="xhv:heading"><span class="secno">B.1 </span>Normative references</span></h3><dl class="bibliography" resource=""><dt id="bib-RFC2119">[RFC2119]</dt><dd>S. Bradner. <a href="https://tools.ietf.org/html/rfc2119" property="dc:requires"><cite>Key words for use in RFCs to Indicate Requirement Levels</cite></a>. March 1997. Best Current Practice. URL: <a href="https://tools.ietf.org/html/rfc2119" property="dc:requires">https://tools.ietf.org/html/rfc2119</a>
+</dd><dt id="bib-SERVICE-WORKERS">[SERVICE-WORKERS]</dt><dd>Alex Russell; Jungkee Song; Jake Archibald. <a href="http://www.w3.org/TR/service-workers/" property="dc:requires"><cite>Service Workers</cite></a>. 5 February 2015. W3C Working Draft. URL: <a href="http://www.w3.org/TR/service-workers/" property="dc:requires">http://www.w3.org/TR/service-workers/</a>
+</dd></dl></section><section id="informative-references" typeof="bibo:Chapter" resource="#informative-references" property="bibo:hasPart"><h3 id="h-informative-references" resource="#h-informative-references"><span property="xhv:role" resource="xhv:heading"><span class="secno">B.2 </span>Informative references</span></h3><dl class="bibliography" resource=""><dt id="bib-DOM4">[DOM4]</dt><dd>Anne van Kesteren; Aryeh Gregor; Ms2ger; Alex Russell; Robin Berjon. <a href="http://www.w3.org/TR/dom/" property="dc:references"><cite>W3C DOM4</cite></a>. 10 July 2014. W3C Last Call Working Draft. URL: <a href="http://www.w3.org/TR/dom/" property="dc:references">http://www.w3.org/TR/dom/</a>
+</dd><dt id="bib-FILE-SYSTEM">[FILE-SYSTEM]</dt><dd>Eric Uhrhane. <a href="http://www.w3.org/TR/file-system-api/" property="dc:references"><cite>File API: Directories and System</cite></a>. 24 April 2014. W3C Note. URL: <a href="http://www.w3.org/TR/file-system-api/" property="dc:references">http://www.w3.org/TR/file-system-api/</a>
+</dd><dt id="bib-HTML5">[HTML5]</dt><dd>Ian Hickson; Robin Berjon; Steve Faulkner; Travis Leithead; Erika Doyle Navara; Edward O'Connor; Silvia Pfeiffer. <a href="http://www.w3.org/TR/html5/" property="dc:references"><cite>HTML5</cite></a>. 28 October 2014. W3C Recommendation. URL: <a href="http://www.w3.org/TR/html5/" property="dc:references">http://www.w3.org/TR/html5/</a>
+</dd><dt id="bib-INDEXEDDB">[INDEXEDDB]</dt><dd>Nikunj Mehta; Jonas Sicking; Eliot Graff; Andrei Popescu; Jeremy Orlow; Joshua Bell. <a href="http://www.w3.org/TR/IndexedDB/" property="dc:references"><cite>Indexed Database API</cite></a>. 8 January 2015. W3C Recommendation. URL: <a href="http://www.w3.org/TR/IndexedDB/" property="dc:references">http://www.w3.org/TR/IndexedDB/</a>
+</dd><dt id="bib-NEW-FILE-SYSTEM">[NEW-FILE-SYSTEM]</dt><dd>Arun Ranganathan. <a href="http://w3c.github.io/filesystem-api/Overview.html" property="dc:references"><cite>FileSystem API</cite></a>. W3C Editor's Draft. URL: <a href="http://w3c.github.io/filesystem-api/Overview.html" property="dc:references">http://w3c.github.io/filesystem-api/Overview.html</a>
+</dd><dt id="bib-OFFLINE-WEBAPPS">[OFFLINE-WEBAPPS]</dt><dd>Anne van Kesteren; Ian Hickson. <a href="http://www.w3.org/TR/offline-webapps/" property="dc:references"><cite>Offline Web Applications</cite></a>. 30 May 2008. W3C Note. URL: <a href="http://www.w3.org/TR/offline-webapps/" property="dc:references">http://www.w3.org/TR/offline-webapps/</a>
+</dd><dt id="bib-WEB-SQL">[WEB-SQL]</dt><dd>Ian Hickson. <a href="http://www.w3.org/TR/webdatabase/" property="dc:references"><cite>Web SQL Database</cite></a>. 18 November 2010. W3C Note. URL: <a href="http://www.w3.org/TR/webdatabase/" property="dc:references">http://www.w3.org/TR/webdatabase/</a>
+</dd><dt id="bib-WEBIDL">[WEBIDL]</dt><dd>Cameron McCormack. <a href="http://www.w3.org/TR/WebIDL/" property="dc:references"><cite>Web IDL</cite></a>. 19 April 2012. W3C Candidate Recommendation. URL: <a href="http://www.w3.org/TR/WebIDL/" property="dc:references">http://www.w3.org/TR/WebIDL/</a>
+</dd><dt id="bib-WEBSTORAGE">[WEBSTORAGE]</dt><dd>Ian Hickson. <a href="http://www.w3.org/TR/webstorage/" property="dc:references"><cite>Web Storage</cite></a>. 30 July 2013. W3C Recommendation. URL: <a href="http://www.w3.org/TR/webstorage/" property="dc:references">http://www.w3.org/TR/webstorage/</a>
+</dd></dl></section></section></body></html>
