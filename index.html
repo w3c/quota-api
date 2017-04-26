@@ -148,7 +148,7 @@
       This specification defines an API to query and manage usage and
       availability of a user's local storage.  The storage space granted
       by the API is intended to be shared by different storage APIs,
-      therefore a user and UA only need to manage single upper limit
+      therefore a user and UA only need to manage a single upper limit
       for all storage per logical application unit, e.g. per origin or
       per browser (which is implementation specific).
       </p>
@@ -222,35 +222,32 @@
         <li>
         <dfn id="temporary">Temporary</dfn> storage is a transient
         storage that is more easily accessible by any Web applications
-        without upfront quota request or user prompting,
+        without upfront quota requests or user prompting,
         but the data stored in the storage
         may get deleted at any time at the UA's discretion.
         This storage can be viewed as analogous to the '/tmp' directory of
         a traditional filesystem.
         <li>
-        <dfn id="persistent">Persistent</dfn> storage needs upfront
+        <dfn id="persistent">Persistent</dfn> storage needs an upfront
         quota request which possibly triggers user prompting, but should
         never get deleted by the UA without the user’s explicit
         instruction.
       </ul>
 
         <p>
-        <a>Temporary</a> type of storage is
-        especially useful
+        <a>Temporary</a> storage is especially useful
         if an application wants to cache data locally to improve
         its performance, but can fall back to fetching or recreating
-        the same data at a data loss.
+        the same data in case of data loss from temporary storage.
         </p>
 
         <p>
-        Conversely,
-        <a>persistent</a> type of storage is useful
+        Conversely, <a>persistent</a> storage is useful
         if an application wants to store critical offline data that
-        is necessary to be functional, or wants to manage local data
-        amount and lifetime on its own policy rather than relying on
+        is necessary for its function, or wants to manage the amount
+        lifecycle of local data on its own, rather than relying on
         the UA's default eviction policy for <a>temporary</a> storage.
         </p>
-      </p>
       </section>
 
       <section>
@@ -259,7 +256,7 @@
         Suppose there is a photo editing application.
         This application
         manages user photo data using Indexed Database [[INDEXEDDB]],
-        stores photo images using Filesystem API [[FILE-SYSTEM]]
+        stores photo images using the Filesystem API [[FILE-SYSTEM]]
         [[NEW-FILE-SYSTEM]] and
         optionally utilizes Application Cache [[OFFLINE-WEBAPPS]]
         to make it work offline.
