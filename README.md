@@ -1,6 +1,10 @@
 Quota Management API
 --------------------
 
+__Beware. This specification is no longer in active maintenance and the Web Applications Working Group does not intend to maintain it further.__
+
+---
+
 This repository is for editing drafts and discussion of the
 [Quota Management API](https://w3c.github.io/quota-api/).It is based on a fork of Kinuko Yasuda's [Quota Management API repository] (https://github.com/kinu/quota-api).
 
