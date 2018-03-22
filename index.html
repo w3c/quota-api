@@ -320,9 +320,15 @@
     <section>
       <h2>Quota Management API</h2>
 
-      <section>
-        <h3><code class="idlType">StorageType</code> enum</h3>
-        <dl title='enum StorageType' class='idl'>
+      <section data-dfn-for="StorageType">
+        <h3><dfn>StorageType</dfn> enum</h3>
+        <pre class='idl'>
+          enum StorageType {
+            "temporary",
+            "persistent"
+          };
+        </pre>
+        <dl>
           <dt>temporary</dt>
           <dd>Indicates <a>temporary</a> storage type.</dd>
           <dt>persistent</dt>
@@ -331,11 +337,16 @@
       </section>
 
 
-      <section>
-        <h3><code class="idlType">StorageInfo</code> dictionary</h3>
-
-        <dl title='dictionary StorageInfo' class='idl'>
-          <dt>unsigned long long usage</dt>
+      <section data-dfn-for="StorageInfo">
+        <h3><dfn>StorageInfo</dfn> dictionary</h3>
+        <pre class='idl'>
+          dictionary StorageInfo {
+            unsigned long long usage;
+            unsigned long long quota;
+          };
+        </pre>
+        <dl>
+          <dt><dfn>usage</dfn></dt>
           <dd>
           <p>
           The total amount of data (in bytes)
@@ -346,7 +357,7 @@
           local storage.
           </p>
           </dd>
-          <dt>unsigned long long quota</dt>
+          <dt><dfn>quota</dfn></dt>
           <dd>
           <p>
           The current upper limit of the storage space that can be used by
@@ -371,8 +382,8 @@
         </dl>
       </section>
 
-      <section>
-        <h3><code class="idlType">StorageQuota</code> interface</h3>
+      <section data-dfn-for="StorageQuota">
+        <h3><dfn>StorageQuota</dfn> interface</h3>
 
         <p>
         The <a><code>StorageQuota</code></a> interface provides means to query
@@ -382,17 +393,25 @@
         blocking I/O operations, e.g. examining the local disk status or
         making changes in a local database.
         </p>
-
-        <dl title='[NoInterfaceObject] interface StorageQuota' class='idl'>
+        <pre class='idl'>
+          [NoInterfaceObject]
+          interface StorageQuota {
+            [SameObject]
+            readonly attribute FrozenArray &lt;StorageType> supportedTypes;
+            Promise &tl;void> queryInfo(StorageType type);
+            Promise &tl;void> requestPersistentQuota([Clamp] unsigned long long newQuota);
+          };
+        </pre>
+        <dl>
           <dt>
-          [SameObject] readonly attribute frozen array&lt;StorageType&gt; supportedTypes
+          <dfn>supportedTypes</dfn>
           </dt>
           <dd>
             List of all storage types supported by the UA.
           </dd>
 
           <dt>
-          Promise queryInfo(StorageType type)
+          <dfn>queryInfo</dfn>
           </dt>
            <dd>
            <p>
@@ -426,7 +445,7 @@
            </p>
            </dd>
 
-          <dt> Promise requestPersistentQuota([Clamp] unsigned long long newQuota) </dt>
+          <dt><dfn>requestPersistentQuota</dfn></dt>
            <dd>
            <p>
            Requests a new quota in <a>persistent</a> storage
@@ -439,7 +458,7 @@
            Calling this API may trigger user prompting to request
            explicit user permission to proceed.
            </p>
-           When <code class="idlType">requestPersistentQuota</code> method is
+           When <a>requestPersistentQuota</a> method is
            called, the UA must run the following steps:
            <ol>
              <li>Let <var>newQuota</var> be the first argument.
@@ -482,11 +501,15 @@
            </dd>
         </dl>
 
-        <section>
-          <h4>Accessing <code class="idlType"><a>StorageQuota</a></code> interface</h4>
-
-          <dl title='partial interface Navigator' class='idl'>
-            <dt>readonly attribute StorageQuota storageQuota</dt>
+        <section data-dfn-for="Navigator">
+          <h4>Accessing <a>StorageQuota</a> interface</h4>
+          <pre class='idl'>
+            partial interface Navigator {
+              readonly attribute StorageQuota storageQuota;
+            };
+          </pre>
+          <dl>
+            <dt><dfn>storageQuota</dfn></dt>
             <dd>
             Returns the <code><a>StorageQuota</a></code> interface.
             </dd>
@@ -494,22 +517,28 @@
         </section>
       </section>
 
-      <section>
-        <h3><code class="idlType">StorageEvent</code> interface</h3>
+      <section data-dfn-for="StorageEvent">
+        <h3><dfn>StorageEvent</dfn> interface</h3>
 
         <p>
         An event object implementing this interface is passed to
         <code>onstoragechange</code>
         event handler when storage information is updated.
         </p>
-
-        <dl title='[Constructor(DOMString type, optional StorageEventInit eventInitDict)] interface StorageEvent : Event' class='idl'>
-          <dt>readonly attribute unsigned long long usage</dt>
+        <pre class='idl'>
+          [Constructor(DOMString type, optional StorageEventInit eventInitDict)]
+          interface StorageEvent: Event {
+            readonly attribute unsigned long long usage;
+            readonly attribute unsigned long long quota;
+          };
+        </pre>
+        <dl>
+          <dt><dfn>usage</dfn></dt>
           <dd>
           The total amount of data (in bytes)
           stored by the application for a given storage type.
           </dd>
-          <dt>readonly attribute unsigned long long quota</dt>
+          <dt><dfn>quota</dfn></dt>
           <dd>
           The current upper limit of the storage space that can be used by
           the application for a given storage type.
@@ -521,19 +550,24 @@
       <p>Events are constructed as defined in
       <a href="http://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html#constructing-events">constructing events</a> in [[DOM4]].
       </p>
-
-      <dl title='dictionary StorageEventInit : EventInit' class='idl'>
-        <dt>unsigned long long usage = 0</dt>
+      <pre class='idl'>
+        dictionary StorageEventInit: EventInit {
+          unsigned long long usage = 0;
+          unsigned long long quota = 0;
+        };
+      </pre>
+      <dl>
+        <dt><dfn>usage</dfn></dt>
         <dd>
         </dd>
-        <dt>unsigned long long quota = 0</dt>
+        <dt><dfn>quota</dfn></dt>
         <dd>
         </dd>
       </dl>
       </section>
 
-      <section>
-        <h3><code class="idlType">StorageWatcher</code> interface</h3>
+      <section data-dfn-for="StorageWatcher">
+        <h3><dfn>StorageWatcher</dfn> interface</h3>
 
         <p>
         <a><code>StorageWatcher</code></a> interface is to watch real time
@@ -558,25 +592,32 @@
         unless <code>close()</code> is called before the first
         <code>storagechange</code> event is dispatched.
         </p>
-
-        <dl title='[Constructor(StorageType type, optional unsigned long rate)]
-                   interface StorageWatcher : EventTarget' class='idl'>
-          <dt>void close()</dt>
+        <pre class='idl'>
+          [Constructor(StorageType type, optional unsigned long rate)]
+          interface StorageWatcher: EventTarget {
+            void close();
+            readonly attribute StorageType type;
+            readonly attribute unsigned long rate;
+            attribute EventListener onstoragechange;
+          };
+        </pre>
+        <dl>
+          <dt><dfn>close</dfn></dt>
           <dd>
           Explicitly closes the watcher.
           Once close() is called the UA never fires events on this instance.
           </dd>
-          <dt>readonly attribute StorageType type</dt>
+          <dt><dfn>type</dfn></dt>
           <dd>
           Returns the storage type <code>type</code> which this
           watcher is constructed with and is monitoring changes on.
           </dd>
-          <dt>readonly attribute unsigned long rate</dt>
+          <dt><dfn>rate</dfn></dt>
           <dd>
           Returns the <code>rate</code> value which this
           watcher is constructed with.
           </dd>
-          <dt>attribute EventListener onstoragechange</dt>
+          <dt><dfn>onstoragechange</dfn></dt>
           <dd>
           The event handler for the <code>storagechange</code> event.
           </dd>
@@ -586,7 +627,7 @@
         <section>
         <h4>Restrictions</h4>
         <p>
-        The space queried and granted by <a class="idlType"><code>StorageQuota</code></a> have the
+        The space queried and granted by <a>StorageQuota</a> have the
         following properties:
         </p>
         <ul>
@@ -603,23 +644,28 @@
       <section>
       <h3>Storage Pressure Events</h3>
 
-        <section>
-          <h3>Extensions to the <code class="idlType">ServiceWorkerGlobalScope</code> interface</h3>
+        <section data-dfn-for="ServiceWorkerGlobalScope">
+          <h3>Extensions to the <dfn>ServiceWorkerGlobalScope</dfn> interface</h3>
 
           <p>
           The Service Worker specification [[SERVICE-WORKERS]] defines a
           <code>ServiceWorkerGlobalScope</code> interface,
           which this specification extends.
           </p>
-
-          <dl title='partial interface ServiceWorkerGlobalScope' class='idl'>
-            <dt>attribute EventHandler onbeforeevicted</dt>
+          <pre class='idl'>
+            partial interface ServiceWorkerGlobalScope {
+              attribute EventHandler onbeforeevicted;
+              attribute EventHandler onevicted;
+            };
+          </pre>
+          <dl>
+            <dt><dfn>onbeforeevicted</dfn></dt>
             <dd>
             The <code>onbeforeevicted</code> attribute is an
             <a>event handler</a> whose corresponding <a>event handler type</a> is
             <code>beforeevicted</code>.
             </dd>
-            <dt>attribute EventHandler onevicted</dt>
+            <dt><dfn>onevicted</dfn></dt>
             <dd>
             The <code>onevicted</code> attribute is an
             <a>event handler</a> whose corresponding
@@ -635,22 +681,28 @@
         evict its content entirely.
         </p>
 
-        <section>
-          <h3><code class="idlType">BeforeEvictEvent</code> interface</h3>
-
-          <dl title='[Constructor(DOMString type, optional BeforeEvictEventInit eventInitDict), Exposed=ServiceWorker] interface BeforeEvictEvent : ExtendableEvent' class='idl' data=merge="BeforeEvictEventInit">
-            <dt>readonly attribute unsigned long long requestedBytes</dt>
+        <section data-dfn-for="BeforeEvictEvent">
+          <h3><dfn>BeforeEvictEvent</dfn> interface</h3>
+          <pre class='idl'>
+            [Constructor(DOMString type, optional BeforeEvictEventInit eventInitDict), Exposed = ServiceWorker]
+            interface BeforeEvictEvent: ExtendableEvent {
+              readonly attribute unsigned long long requestedBytes;
+            };
+          </pre>
+          <dl>
+            <dt><dfn>requestedBytes</dfn></dt>
             <dd>
             The number of bytes that is requested to free up.
             </dd>
           </dl>
         </section>
 
-        <section>
-          <h3><code class="idlType">EvictedEvent</code> interface</h3>
-
-          <dl title='[Constructor(DOMString type, optional EvictedEventInit eventInitDict), Exposed=ServiceWorker] interface EvictedEvent : ExtendableEvent' class='idl' data=merge="BeforeEvictEventInit">
-          </dl>
+        <section data-dfn-for="EvictedEvent">
+          <h3><dfn>EvictedEvent</dfn> interface</h3>
+          <pre class='idl'>
+            [Constructor(DOMString type, optional EvictedEventInit eventInitDict), Exposed = ServiceWorker]
+            interface EvictedEvent: ExtendableEvent {};
+          </pre>
         </section>
         <p>
         This event is only going to be dispatched if there are foreground pages
