@@ -398,8 +398,8 @@
           interface StorageQuota {
             [SameObject]
             readonly attribute FrozenArray &lt;StorageType> supportedTypes;
-            Promise &tl;void> queryInfo(StorageType type);
-            Promise &tl;void> requestPersistentQuota([Clamp] unsigned long long newQuota);
+            Promise &lt;void> queryInfo(StorageType type);
+            Promise &lt;void> requestPersistentQuota([Clamp] unsigned long long newQuota);
           };
         </pre>
         <dl>
